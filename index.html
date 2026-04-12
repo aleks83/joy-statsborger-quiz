@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+<meta name="theme-color" content="#0a0e1a"/>
+<meta name="description" content="Øvingsprøve for norsk statsborgerskap / Norwegian citizenship practice test"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Statsborgerprøven"/>
+<link rel="manifest" href="manifest.json"/>
+<title>Statsborgerprøven</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:'Georgia','Times New Roman',serif;background:#0a0e1a;color:#e8dfc8;min-height:100vh;overflow-x:hidden;}
+  #app{min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 16px 60px;}
+  .bg1{position:fixed;top:-120px;right:-120px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(0,40,104,.3) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  .bg2{position:fixed;bottom:-80px;left:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(239,43,45,.15) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  .container{width:100%;max-width:600px;position:relative;z-index:1;}
+
+  /* HEADER */
+  .header{text-align:center;margin-bottom:24px;}
+  .flag-stripes{display:flex;justify-content:center;gap:5px;margin-bottom:12px;}
+  .stripe{width:38px;height:6px;border-radius:3px;}
+  h1{font-size:26px;color:#f0e8d0;letter-spacing:.5px;margin-bottom:4px;}
+  .subtitle{font-size:11px;color:#4a5a7a;letter-spacing:2.5px;text-transform:uppercase;font-family:sans-serif;}
+
+  /* LANG TOGGLE */
+  .lang-bar{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:20px;}
+  .lang-label{font-size:12px;color:#4a5a7a;font-family:sans-serif;letter-spacing:1px;}
+  .toggle-wrap{position:relative;width:52px;height:28px;cursor:pointer;}
+  .toggle-wrap input{opacity:0;width:0;height:0;position:absolute;}
+  .toggle-track{position:absolute;inset:0;background:#1a2540;border-radius:14px;border:1px solid #2a3a5a;transition:background .2s;}
+  .toggle-thumb{position:absolute;top:3px;left:3px;width:20px;height:20px;background:#3a5a9a;border-radius:50%;transition:transform .2s;}
+  input:checked ~ .toggle-track{background:#0a2040;}
+  input:checked ~ .toggle-thumb{transform:translateX(24px);background:#5a8ad0;}
+
+  /* CARD */
+  .card{background:#111827;border:1px solid #1e2a40;border-radius:16px;padding:24px 20px;box-shadow:0 20px 60px rgba(0,0,0,.5);transition:opacity .2s;}
+  .card.fade{opacity:0;}
+
+  /* PROGRESS */
+  .progress-row{display:flex;justify-content:space-between;margin-bottom:8px;}
+  .progress-label{font-size:11px;color:#4a5a7a;font-family:sans-serif;letter-spacing:.5px;}
+  .progress-bar{height:4px;background:#1e2a40;border-radius:2px;margin-bottom:24px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,#002868,#EF2B2D);border-radius:2px;transition:width .5s ease;}
+
+  /* QUESTION */
+  .category-tag{font-size:10px;color:#3a5a7a;letter-spacing:2px;text-transform:uppercase;font-family:sans-serif;margin-bottom:10px;}
+  .question-text{font-size:19px;color:#e8dfc8;line-height:1.55;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid #1e2a40;}
+
+  /* OPTIONS */
+  .options{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+  .option-btn{display:flex;align-items:center;gap:12px;padding:13px 15px;background:#0d1525;border:1px solid #1e2a40;border-radius:10px;cursor:pointer;text-align:left;color:#b0c0d8;font-size:14px;font-family:sans-serif;width:100%;transition:all .15s;-webkit-appearance:none;}
+  .option-btn:active{transform:scale(.98);}
+  .option-btn.selected{background:#0d2040;border-color:#3a5a9a;color:#c8d8f0;}
+  .option-btn.correct{background:#0a2a18;border-color:#2d8a50;color:#7dd8a0;cursor:default;}
+  .option-btn.wrong{background:#2a0a0a;border-color:#8a2d2d;color:#d87777;cursor:default;}
+  .option-btn.dim{opacity:.35;cursor:default;}
+  .opt-letter{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;min-width:26px;border-radius:50%;background:#1a2540;font-size:11px;font-weight:bold;color:#4a6a9a;font-family:monospace;}
+  .opt-text{flex:1;}
+  .opt-icon{font-size:15px;font-weight:bold;}
+
+  /* EXPLANATION */
+  .explanation{padding:13px 15px;border-radius:10px;font-size:13px;font-family:sans-serif;line-height:1.6;margin-bottom:18px;display:flex;gap:10px;align-items:flex-start;}
+  .explanation.good{background:#0d3320;color:#90c8a0;}
+  .explanation.bad{background:#2d0d0d;color:#c09090;}
+  .expl-icon{font-size:15px;margin-top:1px;min-width:18px;}
+
+  /* BUTTONS */
+  .btn-row{display:flex;justify-content:flex-end;}
+  .btn{padding:12px 26px;background:linear-gradient(135deg,#002868,#003890);border:1px solid #0040b0;border-radius:8px;color:#c8d8f8;font-size:14px;font-family:sans-serif;cursor:pointer;letter-spacing:.3px;transition:all .15s;-webkit-appearance:none;}
+  .btn:disabled{opacity:.35;cursor:not-allowed;}
+  .btn:active:not(:disabled){transform:scale(.97);}
+
+  /* RESULTS */
+  .result-top{text-align:center;margin-bottom:26px;padding-bottom:22px;border-bottom:1px solid #1e2a40;}
+  .score-badge{display:inline-flex;flex-direction:column;align-items:center;padding:20px 40px;border-radius:12px;margin-bottom:14px;}
+  .score-badge.pass{background:#1a6b3a;}
+  .score-badge.fail{background:#6b1a1a;}
+  .score-pct{font-size:52px;font-weight:bold;color:#f0e8d0;line-height:1;}
+  .score-lbl{font-size:13px;color:#a0c0a0;margin-top:5px;font-family:sans-serif;letter-spacing:1px;}
+  .score-detail{font-size:22px;color:#e8dfc8;margin-bottom:8px;}
+  .score-of{font-size:16px;color:#4a5a7a;font-family:sans-serif;}
+  .result-note{font-size:13px;color:#6a7a9a;font-family:sans-serif;}
+
+  .review-title{font-size:11px;color:#4a5a7a;letter-spacing:2px;text-transform:uppercase;font-family:sans-serif;margin:0 0 10px;}
+  .review-list{display:flex;flex-direction:column;gap:10px;margin-bottom:22px;}
+  .review-item{padding:11px 13px;background:#0d1525;border-radius:8px;font-size:12px;font-family:sans-serif;border-left:3px solid #1e2a40;}
+  .review-item.ok{border-left-color:#2d8a50;}
+  .review-item.ko{border-left-color:#c0392b;}
+  .review-q{color:#b0c0d8;margin-bottom:3px;display:flex;gap:7px;}
+  .review-icon{font-weight:bold;min-width:13px;margin-top:1px;}
+  .review-correct{color:#c07070;font-size:11px;margin-bottom:3px;padding-left:20px;}
+  .review-expl{color:#3a5a5a;font-size:11px;line-height:1.5;padding-left:20px;}
+
+  .restart-btn{width:100%;padding:13px;background:transparent;border:1px solid #2a3a5a;border-radius:8px;color:#6a8ab8;font-size:14px;font-family:sans-serif;cursor:pointer;letter-spacing:.5px;transition:all .15s;-webkit-appearance:none;}
+  .restart-btn:active{transform:scale(.98);}
+
+  /* MENU */
+  .menu-card{background:#111827;border:1px solid #1e2a40;border-radius:16px;padding:28px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center;}
+  .menu-desc{font-size:13px;color:#4a5a7a;font-family:sans-serif;line-height:1.7;margin-bottom:24px;}
+  .menu-options{display:flex;flex-direction:column;gap:12px;margin-bottom:18px;}
+  .menu-btn{padding:15px 20px;border-radius:10px;border:1px solid #2a3a5a;background:#0d1525;color:#b0c0d8;font-size:14px;font-family:sans-serif;cursor:pointer;transition:all .15s;-webkit-appearance:none;}
+  .menu-btn:active{transform:scale(.98);}
+  .menu-btn .mb-title{font-size:15px;color:#c8d8f0;display:block;margin-bottom:3px;}
+  .menu-btn .mb-sub{font-size:11px;color:#3a5a7a;letter-spacing:1px;}
+  .menu-btn.highlight{background:#0d2040;border-color:#3a5a9a;}
+  .stats-row{display:flex;justify-content:center;gap:24px;padding-top:16px;border-top:1px solid #1e2a40;}
+  .stat-item{text-align:center;}
+  .stat-num{display:block;font-size:22px;color:#f0e8d0;margin-bottom:2px;}
+  .stat-lbl{font-size:10px;color:#3a5a7a;font-family:sans-serif;letter-spacing:1.5px;text-transform:uppercase;}
+</style>
+</head>
+<body>
+<div class="bg1"></div>
+<div class="bg2"></div>
+<div id="app">
+  <div class="container">
+    <div class="header">
+      <div class="flag-stripes">
+        <div class="stripe" style="background:#EF2B2D"></div>
+        <div class="stripe" style="background:#fff"></div>
+        <div class="stripe" style="background:#002868"></div>
+      </div>
+      <h1>Statsborgerprøven</h1>
+      <p class="subtitle" id="header-sub">Norsk Statsborgerskap · Øvingsprøve</p>
+    </div>
+    <div class="lang-bar">
+      <span class="lang-label" id="lang-no-lbl" style="color:#c8d8f0">NO</span>
+      <label class="toggle-wrap">
+        <input type="checkbox" id="lang-toggle"/>
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      <span class="lang-label" id="lang-en-lbl">EN</span>
+    </div>
+    <div id="screen"></div>
+  </div>
+</div>
+<script>
+const ALL_QUESTIONS = [
+  // --- HISTORY ---
+  {cat:"history",no:{q:"Når ble den norske grunnloven underskrevet?",opts:["1776","1814","1905"],a:1,exp:"Grunnloven ble vedtatt på Eidsvoll 17. mai 1814. Dagen feires som Norges nasjonaldag."},en:{q:"When was the Norwegian Constitution signed?",opts:["1776","1814","1905"],a:1,exp:"The Constitution was adopted at Eidsvoll on 17 May 1814. The day is celebrated as Norway's national day."}},
+  {cat:"history",no:{q:"Hvilket land okkuperte Norge under 2. verdenskrig?",opts:["Russland","Sverige","Tyskland"],a:2,exp:"Tyskland okkuperte Norge fra april 1940 til mai 1945."},en:{q:"Which country occupied Norway during World War II?",opts:["Russia","Sweden","Germany"],a:2,exp:"Germany occupied Norway from April 1940 to May 1945."}},
+  {cat:"history",no:{q:"Hva skjedde 9. april 1940?",opts:["Norge ble selvstendig","Tyskland invaderte Norge","Norge meldte seg inn i NATO"],a:1,exp:"9. april 1940 invaderte Nazi-Tyskland Norge. Det startet den tyske okkupasjonen."},en:{q:"What happened on 9 April 1940?",opts:["Norway became independent","Germany invaded Norway","Norway joined NATO"],a:1,exp:"On 9 April 1940, Nazi Germany invaded Norway, starting the German occupation."}},
+  {cat:"history",no:{q:"Hvilket land var Norge i union med fram til 1905?",opts:["Danmark","Sverige","Finland"],a:1,exp:"Norge var i union med Sverige fra 1814 til 1905, da unionen ble oppløst fredelig."},en:{q:"Which country was Norway in union with until 1905?",opts:["Denmark","Sweden","Finland"],a:1,exp:"Norway was in union with Sweden from 1814 to 1905, when the union was peacefully dissolved."}},
+  {cat:"history",no:{q:"Hvor lenge var Norge i union med Danmark?",opts:["Ca. 200 år","Ca. 400 år","Ca. 100 år"],a:1,exp:"Danmark-Norge-unionen varte fra ca. 1380 til 1814 – omtrent 434 år."},en:{q:"How long was Norway in union with Denmark?",opts:["About 200 years","About 400 years","About 100 years"],a:1,exp:"The Denmark-Norway union lasted from about 1380 to 1814 – approximately 434 years."}},
+  {cat:"history",no:{q:"Hva kalles perioden da vikingene reiste og handlet rundt i Europa?",opts:["Renessansen","Vikingtiden","Middelalderen"],a:1,exp:"Vikingtiden varte fra ca. 793 til 1066. Vikingene var sjøfarere og handelsmenn fra Skandinavia."},en:{q:"What is the period called when Vikings travelled and traded across Europe?",opts:["The Renaissance","The Viking Age","The Middle Ages"],a:1,exp:"The Viking Age lasted from about 793 to 1066. Vikings were seafarers and traders from Scandinavia."}},
+  {cat:"history",no:{q:"Hvem var Norges konstitusjonelle monark da grunnloven ble vedtatt i 1814?",opts:["Karl Johan","Christian Frederik","Håkon VII"],a:1,exp:"Christian Frederik ledet riksforsamlingen på Eidsvoll og ble valgt til Norges første konge i 1814."},en:{q:"Who was Norway's constitutional monarch when the constitution was adopted in 1814?",opts:["Karl Johan","Christian Frederik","Haakon VII"],a:1,exp:"Christian Frederik led the constitutional assembly at Eidsvoll and was elected Norway's first king in 1814."}},
+  {cat:"history",no:{q:"Hva heter stedet der grunnloven ble skrevet?",opts:["Kongsberg","Eidsvoll","Lillehammer"],a:1,exp:"Riksforsamlingen møttes på Eidsvoll gods i 1814 og underskrev grunnloven der."},en:{q:"What is the place called where the constitution was written?",opts:["Kongsberg","Eidsvoll","Lillehammer"],a:1,exp:"The constituent assembly met at Eidsvoll estate in 1814 and signed the constitution there."}},
+  {cat:"history",no:{q:"Hva het Norges motstandsbevegelse under 2. verdenskrig?",opts:["Heimevernet","Milorg","Frikorps"],a:1,exp:"Milorg (Militærorganisasjonen) var den viktigste norske motstandsbevegelsen under okkupasjonen."},en:{q:"What was Norway's resistance movement called during World War II?",opts:["The Home Guard","Milorg","Frikorps"],a:1,exp:"Milorg (the Military Organisation) was the main Norwegian resistance movement during the occupation."}},
+  {cat:"history",no:{q:"Hvem var Norges statsminister under 2. verdenskrig i eksil?",opts:["Vidkun Quisling","Johan Nygaardsvold","Einar Gerhardsen"],a:1,exp:"Johan Nygaardsvold ledet den norske eksilregjeringen i London under krigen."},en:{q:"Who was Norway's Prime Minister in exile during World War II?",opts:["Vidkun Quisling","Johan Nygaardsvold","Einar Gerhardsen"],a:1,exp:"Johan Nygaardsvold led the Norwegian government in exile in London during the war."}},
+  {cat:"history",no:{q:"Hva er Eidsvollsmennene?",opts:["Vikinger fra Eidsvoll","De 112 representantene som vedtok grunnloven","Norske soldater fra 1905"],a:1,exp:"Eidsvollsmennene er de 112 representantene som møttes på Eidsvoll i 1814 og vedtok grunnloven."},en:{q:"Who were the Eidsvoll men?",opts:["Vikings from Eidsvoll","The 112 representatives who adopted the constitution","Norwegian soldiers from 1905"],a:1,exp:"The Eidsvoll men were the 112 representatives who met at Eidsvoll in 1814 and adopted the constitution."}},
+  {cat:"history",no:{q:"Hva het den norske nazisten som samarbeidet med tyskerne under krigen?",opts:["Fridtjof Nansen","Vidkun Quisling","Ole Hallesby"],a:1,exp:"Vidkun Quisling var leder av Nasjonal Samling og samarbeidet med Nazi-Tyskland. Navnet hans ble et internasjonalt ord for forræder."},en:{q:"What was the Norwegian Nazi called who collaborated with the Germans during the war?",opts:["Fridtjof Nansen","Vidkun Quisling","Ole Hallesby"],a:1,exp:"Vidkun Quisling was leader of Nasjonal Samling and collaborated with Nazi Germany. His name became an international word for traitor."}},
+  {cat:"history",no:{q:"Når fant Norge olje i Nordsjøen?",opts:["1959","1969","1979"],a:1,exp:"Olje ble funnet på Ekofisk-feltet i 1969. Det forandret norsk økonomi dramatisk."},en:{q:"When did Norway find oil in the North Sea?",opts:["1959","1969","1979"],a:1,exp:"Oil was discovered at the Ekofisk field in 1969. It dramatically changed the Norwegian economy."}},
+  {cat:"history",no:{q:"Hva er Oljefondet?",opts:["En privat norsk bank","Statens pensjonsfond utland","Et oljeboring-selskap"],a:1,exp:"Statens pensjonsfond utland (Oljefondet) ble opprettet i 1990 for å spare oljeinntekter til fremtidige generasjoner. Det er verdens største statlige investeringsfond."},en:{q:"What is the Oil Fund?",opts:["A private Norwegian bank","The Government Pension Fund Global","An oil drilling company"],a:1,exp:"The Government Pension Fund Global (Oil Fund) was established in 1990 to save oil revenues for future generations. It is the world's largest sovereign wealth fund."}},
+  {cat:"history",no:{q:"Hvem var den første norske kongen etter 1905?",opts:["Haakon VII","Olav V","Harald V"],a:0,exp:"Haakon VII ble valgt til Norges første selvstendige konge etter unionsoppløsningen i 1905."},en:{q:"Who was the first Norwegian king after 1905?",opts:["Haakon VII","Olav V","Harald V"],a:0,exp:"Haakon VII was elected Norway's first independent king after the dissolution of the union in 1905."}},
+
+  // --- GOVERNMENT & DEMOCRACY ---
+  {cat:"government",no:{q:"Hva heter Norges nasjonalforsamling?",opts:["Riksdagen","Stortinget","Folketing"],a:1,exp:"Stortinget er Norges nasjonalforsamling med 169 representanter."},en:{q:"What is Norway's national assembly called?",opts:["The Riksdag","The Storting","The Folketing"],a:1,exp:"The Storting is Norway's national assembly with 169 representatives."}},
+  {cat:"government",no:{q:"Hvor mange representanter er det på Stortinget?",opts:["100","150","169"],a:2,exp:"Stortinget har 169 representanter valgt fra 19 valgkretser."},en:{q:"How many representatives are there in the Storting?",opts:["100","150","169"],a:2,exp:"The Storting has 169 representatives elected from 19 constituencies."}},
+  {cat:"government",no:{q:"Hvor ofte er det stortingsvalg?",opts:["Hvert andre år","Hvert fjerde år","Hvert femte år"],a:1,exp:"Stortingsvalg holdes hvert fjerde år. Neste valg er i 2025."},en:{q:"How often are parliamentary elections held?",opts:["Every two years","Every four years","Every five years"],a:1,exp:"Parliamentary elections are held every four years."}},
+  {cat:"government",no:{q:"Hva kalles lederen av den norske regjeringen?",opts:["Presidenten","Statsministeren","Statsråden"],a:1,exp:"Norge ledes av en statsminister som er leder for regjeringen."},en:{q:"What is the leader of the Norwegian government called?",opts:["The President","The Prime Minister","The Minister of State"],a:1,exp:"Norway is led by a Prime Minister who heads the government."}},
+  {cat:"government",no:{q:"Hva heter den norske grunnloven?",opts:["Kongsloven","Grunnloven","Statsloven"],a:1,exp:"Den norske grunnloven ble vedtatt i 1814 og er en av verdens eldste grunnlover som fortsatt er i kraft."},en:{q:"What is the Norwegian constitution called?",opts:["The King's Law","Grunnloven","The State Law"],a:1,exp:"The Norwegian Constitution (Grunnloven) was adopted in 1814 and is one of the world's oldest constitutions still in force."}},
+  {cat:"government",no:{q:"Hvem skriver under på nye lover i Norge?",opts:["Statsministeren","Kongen","Stortingspresidenten"],a:1,exp:"Kongen sanksjonerer (underskriver) lover vedtatt av Stortinget."},en:{q:"Who signs new laws in Norway?",opts:["The Prime Minister","The King","The President of the Storting"],a:1,exp:"The King sanctions (signs) laws passed by the Storting."}},
+  {cat:"government",no:{q:"Hva er lokalvalg i Norge?",opts:["Valg til Stortinget","Valg til fylkesting og kommunestyre","Valg til EU-parlamentet"],a:1,exp:"Lokalvalg holdes hvert fjerde år mellom stortingsvalgene, og velgerne stemmer på representanter til fylkesting og kommunestyrer."},en:{q:"What are local elections in Norway?",opts:["Elections to the Storting","Elections to county and municipal councils","Elections to the EU Parliament"],a:1,exp:"Local elections are held every four years between parliamentary elections, where voters elect representatives to county and municipal councils."}},
+  {cat:"government",no:{q:"Hva betyr ytringsfrihet?",opts:["Frihet til å reise","Frihet til å si og skrive det man mener","Frihet til å stemme"],a:1,exp:"Ytringsfrihet er retten til å uttrykke egne meninger fritt, beskyttet av Grunnloven § 100."},en:{q:"What does freedom of expression mean?",opts:["Freedom to travel","Freedom to say and write what you think","Freedom to vote"],a:1,exp:"Freedom of expression is the right to freely express one's opinions, protected by Article 100 of the Constitution."}},
+  {cat:"government",no:{q:"Hva er et politisk parti?",opts:["En offentlig etat","En organisasjon av mennesker med felles politiske mål","En type domstol"],a:1,exp:"Et politisk parti er en organisasjon som ønsker å påvirke politikk og stille kandidater til valg."},en:{q:"What is a political party?",opts:["A government agency","An organisation of people with shared political goals","A type of court"],a:1,exp:"A political party is an organisation that seeks to influence politics and run candidates in elections."}},
+  {cat:"government",no:{q:"Hva er et demokrati?",opts:["Et land styrt av kongen alene","Et styresett der folket bestemmer gjennom valg","Et styre av militæret"],a:1,exp:"Demokrati betyr folkestyre – innbyggerne velger representanter som tar politiske beslutninger på vegne av alle."},en:{q:"What is a democracy?",opts:["A country ruled by the king alone","A system of government where people decide through elections","A military rule"],a:1,exp:"Democracy means rule by the people – citizens elect representatives who make political decisions on behalf of all."}},
+  {cat:"government",no:{q:"Hva heter den høyeste domstolen i Norge?",opts:["Lagmannsretten","Høyesterett","Tingretten"],a:1,exp:"Høyesterett er Norges øverste domstol og den siste instansen i rettssystemet."},en:{q:"What is the highest court in Norway called?",opts:["The Court of Appeal","The Supreme Court","The District Court"],a:1,exp:"The Supreme Court (Høyesterett) is Norway's highest court and the final instance in the legal system."}},
+  {cat:"government",no:{q:"Hva er stemmerettsalderen i Norge?",opts:["16 år","18 år","20 år"],a:1,exp:"Du må være 18 år i løpet av valgåret for å stemme ved stortingsvalg og lokalvalg."},en:{q:"What is the voting age in Norway?",opts:["16","18","20"],a:1,exp:"You must turn 18 during the election year to vote in parliamentary and local elections."}},
+  {cat:"government",no:{q:"Hva er tredelingen av statsmakten?",opts:["Kongen, statsministeren og politiet","Den lovgivende, utøvende og dømmende makt","Stortinget, kommunen og fylket"],a:1,exp:"Statsmakten er delt i tre: Stortinget (lovgivende), regjeringen (utøvende) og domstolene (dømmende). Dette forhindrer maktmisbruk."},en:{q:"What is the separation of powers?",opts:["The King, Prime Minister and police","The legislative, executive and judicial power","The Storting, municipality and county"],a:1,exp:"State power is divided into three: the Storting (legislative), the government (executive) and the courts (judicial). This prevents abuse of power."}},
+  {cat:"government",no:{q:"Hva er en kommune i Norge?",opts:["Et politisk parti","Den minste administrative enheten med eget styre","En statlig etat"],a:1,exp:"Norge er delt inn i kommuner, som er den lokale forvaltningsenheten med eget kommunestyre."},en:{q:"What is a municipality (kommune) in Norway?",opts:["A political party","The smallest administrative unit with its own council","A state agency"],a:1,exp:"Norway is divided into municipalities, which are local administrative units with their own elected council."}},
+  {cat:"government",no:{q:"Hva er Sametinget?",opts:["Et norsk fylkesting","Det samiske folkets eget parlament","En kulturorganisasjon"],a:1,exp:"Sametinget er samenes eget folkevalgte organ i Norge, etablert i 1989. Det representerer det samiske folk."},en:{q:"What is the Sami Parliament (Sametinget)?",opts:["A Norwegian county council","The Sami people's own parliament","A cultural organisation"],a:1,exp:"The Sami Parliament is the Sami people's own elected body in Norway, established in 1989."}},
+  {cat:"government",no:{q:"Hva kalles det norske statsoverhode?",opts:["Presidenten","Kongen","Statsministeren"],a:1,exp:"Kong Harald V er Norges statsoverhode. Norge er et konstitusjonelt monarki."},en:{q:"What is the Norwegian head of state called?",opts:["The President","The King","The Prime Minister"],a:1,exp:"King Harald V is Norway's head of state. Norway is a constitutional monarchy."}},
+
+  // --- ROYAL FAMILY ---
+  {cat:"royals",no:{q:"Hva heter den norske kongen?",opts:["Haakon","Harald V","Olav V"],a:1,exp:"Kong Harald V har vært Norges regent siden 1991. Han er den femte norske kongen med navnet Harald."},en:{q:"What is the Norwegian king called?",opts:["Haakon","Harald V","Olav V"],a:1,exp:"King Harald V has been Norway's monarch since 1991. He is the fifth Norwegian king named Harald."}},
+  {cat:"royals",no:{q:"Hva heter den norske kronprinsen?",opts:["Magnus","Haakon","Olav"],a:1,exp:"Kronprins Haakon er sønn av kong Harald og dronning Sonja og er tronfølger."},en:{q:"What is the Norwegian Crown Prince called?",opts:["Magnus","Haakon","Olav"],a:1,exp:"Crown Prince Haakon is the son of King Harald and Queen Sonja and is heir to the throne."}},
+  {cat:"royals",no:{q:"Hva er kongens valgspråk?",opts:["Alt for Norge","Gud og landet","For konge og fedreland"],a:0,exp:"Kongens valgspråk er «Alt for Norge». Det har vært det norske kongehusets motto siden Haakon VII."},en:{q:"What is the King's motto?",opts:["Alt for Norge (Everything for Norway)","God and the country","For king and fatherland"],a:0,exp:"The King's motto is 'Alt for Norge' (Everything for Norway). It has been the Norwegian royal house's motto since Haakon VII."}},
+  {cat:"royals",no:{q:"Hva heter dronningen av Norge?",opts:["Mette-Marit","Sonja","Märtha Louise"],a:1,exp:"Dronning Sonja er gift med kong Harald V. Hun ble dronning da Harald ble konge i 1991."},en:{q:"What is the Queen of Norway called?",opts:["Mette-Marit","Sonja","Märtha Louise"],a:1,exp:"Queen Sonja is married to King Harald V. She became Queen when Harald became King in 1991."}},
+  {cat:"royals",no:{q:"Hva heter kronprinsessen av Norge?",opts:["Ingrid Alexandra","Mette-Marit","Märtha Louise"],a:1,exp:"Kronprinsesse Mette-Marit er gift med kronprins Haakon. De giftet seg i 2001."},en:{q:"What is the Crown Princess of Norway called?",opts:["Ingrid Alexandra","Mette-Marit","Märtha Louise"],a:1,exp:"Crown Princess Mette-Marit is married to Crown Prince Haakon. They married in 2001."}},
+
+  // --- GEOGRAPHY ---
+  {cat:"geography",no:{q:"Hva er Norges hovedstad?",opts:["Bergen","Oslo","Trondheim"],a:1,exp:"Oslo er Norges hovedstad og største by med rundt 700 000 innbyggere."},en:{q:"What is Norway's capital?",opts:["Bergen","Oslo","Trondheim"],a:1,exp:"Oslo is Norway's capital and largest city with around 700,000 inhabitants."}},
+  {cat:"geography",no:{q:"Hva er den norske valutaen?",opts:["Euro","Norsk krone","Svenske kroner"],a:1,exp:"Norge bruker norske kroner (NOK). Norge er ikke EU-medlem og har ikke innført euroen."},en:{q:"What is the Norwegian currency?",opts:["Euro","Norwegian krone","Swedish krona"],a:1,exp:"Norway uses the Norwegian krone (NOK). Norway is not an EU member and has not adopted the euro."}},
+  {cat:"geography",no:{q:"Hvilke land grenser Norge til?",opts:["Sverige, Finland og Russland","Sverige, Finland, Russland og Danmark","Sverige og Finland"],a:0,exp:"Norge grenser til Sverige i øst, Finland og Russland i nordøst. Danmark ligger sør for Norge, men de deler ikke en landgrense."},en:{q:"Which countries does Norway border?",opts:["Sweden, Finland and Russia","Sweden, Finland, Russia and Denmark","Sweden and Finland"],a:0,exp:"Norway borders Sweden to the east, Finland and Russia to the northeast. Denmark is south of Norway but they do not share a land border."}},
+  {cat:"geography",no:{q:"Hva heter den lengste fjorden i Norge?",opts:["Hardangerfjorden","Sognefjorden","Oslofjorden"],a:1,exp:"Sognefjorden er Norges (og verdens nest) lengste fjord, med en lengde på over 200 km."},en:{q:"What is the longest fjord in Norway called?",opts:["Hardangerfjorden","Sognefjorden","Oslofjorden"],a:1,exp:"Sognefjorden is Norway's (and the world's second) longest fjord, stretching over 200 km."}},
+  {cat:"geography",no:{q:"Hva er Norges høyeste fjell?",opts:["Glittertind","Galdhøpiggen","Snøhetta"],a:1,exp:"Galdhøpiggen (2469 m) er Norges og Skandinavias høyeste fjell."},en:{q:"What is Norway's highest mountain?",opts:["Glittertind","Galdhøpiggen","Snøhetta"],a:1,exp:"Galdhøpiggen (2,469 m) is Norway's and Scandinavia's highest mountain."}},
+  {cat:"geography",no:{q:"Hva er Norges nest største by?",opts:["Stavanger","Trondheim","Bergen"],a:2,exp:"Bergen er Norges nest største by med rundt 280 000 innbyggere."},en:{q:"What is Norway's second largest city?",opts:["Stavanger","Trondheim","Bergen"],a:2,exp:"Bergen is Norway's second largest city with around 280,000 inhabitants."}},
+  {cat:"geography",no:{q:"Hva er Nordkapp?",opts:["En by i Nord-Norge","Det nordligste punktet i kontinentale Europa","En norsk fjord"],a:1,exp:"Nordkapp på Magerøya regnes som det nordligste punktet på det europeiske fastlandet og er et populært turistmål."},en:{q:"What is Nordkapp (North Cape)?",opts:["A town in northern Norway","The northernmost point of continental Europe","A Norwegian fjord"],a:1,exp:"Nordkapp on Magerøya is considered the northernmost point of continental Europe and is a popular tourist destination."}},
+  {cat:"geography",no:{q:"Hva er Svalbard?",opts:["En norsk by","En norsk øygruppe i Arktis","En del av Finland"],a:1,exp:"Svalbard er en norsk øygruppe i Arktis. Longyearbyen er den største bygda der."},en:{q:"What is Svalbard?",opts:["A Norwegian city","A Norwegian archipelago in the Arctic","Part of Finland"],a:1,exp:"Svalbard is a Norwegian archipelago in the Arctic. Longyearbyen is the largest settlement there."}},
+  {cat:"geography",no:{q:"Hva heter havet vest for Norge?",opts:["Østersjøen","Nordsjøen","Atlanterhavet"],a:1,exp:"Nordsøen ligger vest og sør for Norge. Norsk oljeproduksjon foregår i stor grad der."},en:{q:"What is the sea to the west of Norway called?",opts:["The Baltic Sea","The North Sea","The Atlantic Ocean"],a:1,exp:"The North Sea lies to the west and south of Norway. Much of Norwegian oil production takes place there."}},
+  {cat:"geography",no:{q:"Hva er midnattssolen?",opts:["Et nordnorsk fjell","Fenomenet der solen ikke går ned om sommeren","En norsk festival"],a:1,exp:"Midnattssolen er et fenomen nord for polarsirkelen der solen ikke går ned i sommermånedene."},en:{q:"What is the midnight sun?",opts:["A mountain in northern Norway","The phenomenon where the sun does not set in summer","A Norwegian festival"],a:1,exp:"The midnight sun is a phenomenon north of the Arctic Circle where the sun does not set during summer months."}},
+  {cat:"geography",no:{q:"Hva er polarsirkelen i Norge?",opts:["En turistattraksjon nær Bodø","Den geografiske bredden 66,5° nord","En fjord i Nord-Norge"],a:1,exp:"Polarsirkelen er den geografiske breddegraden 66,5° nord, der midnattssolen om sommeren og mørketiden om vinteren opptrer. Den krysser gjennom Nordland fylke."},en:{q:"What is the Arctic Circle in Norway?",opts:["A tourist attraction near Bodø","The geographical latitude of 66.5° north","A fjord in northern Norway"],a:1,exp:"The Arctic Circle is the geographical latitude of 66.5° north, where midnight sun in summer and polar night in winter occur. It crosses through Nordland county."}},
+  {cat:"geography",no:{q:"Hva er Jan Mayen?",opts:["Et norsk skip","En norsk øy i Nordatlanteren","En by i Finnmark"],a:1,exp:"Jan Mayen er en norsk øy i Nordatlanteren, kjent for den aktive vulkanen Beerenberg. Øya er ubebodd bortsett fra en meteorologisk stasjon."},en:{q:"What is Jan Mayen?",opts:["A Norwegian ship","A Norwegian island in the North Atlantic","A town in Finnmark"],a:1,exp:"Jan Mayen is a Norwegian island in the North Atlantic, known for the active volcano Beerenberg. The island is uninhabited except for a meteorological station."}},
+
+  // --- SOCIETY & WELFARE ---
+  {cat:"society",no:{q:"Hva er NAV?",opts:["En norsk bank","Et politisk parti","En offentlig etat for arbeid og velferd"],a:2,exp:"NAV (Arbeids- og velferdsetaten) hjelper folk med arbeid, trygd og sosiale tjenester."},en:{q:"What is NAV?",opts:["A Norwegian bank","A political party","A public agency for work and welfare"],a:2,exp:"NAV (the Labour and Welfare Administration) helps people with employment, benefits and social services."}},
+  {cat:"society",no:{q:"Hva er «fastlege»?",opts:["En lege på sykehus","En lege du er fast tilknyttet","En legevaktlege"],a:1,exp:"Alle innbyggere i Norge har rett til en fastlege – en allmennlege du er personlig tilknyttet og oppsøker ved sykdom."},en:{q:"What is a 'fastlege' (regular GP)?",opts:["A hospital doctor","A doctor you are permanently assigned to","An emergency doctor"],a:1,exp:"All residents in Norway have the right to a regular GP – a general practitioner you are personally assigned to and see when ill."}},
+  {cat:"society",no:{q:"Hva er «barnehage»?",opts:["Et sykehus for barn","En barneskole","En institusjon for barn under skolealder"],a:2,exp:"Barnehage er for barn fra 1–6 år, altså før de begynner på skolen. Det er fulltidstilbud med pedagogisk innhold."},en:{q:"What is a 'barnehage' (kindergarten)?",opts:["A children's hospital","A primary school","An institution for children under school age"],a:2,exp:"Kindergarten is for children aged 1–6, before they start school. It offers full-time care with educational content."}},
+  {cat:"society",no:{q:"Hva er «barnetrygd»?",opts:["En skatt for foreldre","En månedlig støtte til familier med barn","En forsikring for barn"],a:1,exp:"Barnetrygd er en månedlig utbetaling fra NAV til familier med barn under 18 år. Det er en universell ytelse."},en:{q:"What is 'barnetrygd' (child benefit)?",opts:["A tax for parents","A monthly payment to families with children","An insurance for children"],a:1,exp:"Child benefit is a monthly payment from NAV to families with children under 18. It is a universal benefit."}},
+  {cat:"society",no:{q:"Hva er «foreldrepermisjon»?",opts:["Ferie for alle","Permisjon fra jobben i forbindelse med fødsel","En statlig bonus til foreldre"],a:1,exp:"Foreldrepermisjon er lønnet permisjon fra jobb i forbindelse med fødsel eller adopsjon. Norge har blant de mest generøse ordningene i verden."},en:{q:"What is 'foreldrepermisjon' (parental leave)?",opts:["Holiday for everyone","Leave from work in connection with childbirth","A state bonus for parents"],a:1,exp:"Parental leave is paid leave from work in connection with birth or adoption. Norway has one of the most generous schemes in the world."}},
+  {cat:"society",no:{q:"Hva er «sykepenger»?",opts:["Penger man tjener på sykehus","Støtte fra NAV når man er syk og ikke kan jobbe","En forsikring mot ulykker"],a:1,exp:"Sykepenger er en inntektserstatning fra NAV for de som er sykemeldt og ikke kan jobbe på grunn av sykdom eller skade."},en:{q:"What is 'sykepenger' (sick pay)?",opts:["Money earned in hospital","Support from NAV when ill and unable to work","An accident insurance"],a:1,exp:"Sick pay is income replacement from NAV for those on sick leave who cannot work due to illness or injury."}},
+  {cat:"society",no:{q:"Hva er folkehøgskole?",opts:["En type videregående skole","En skole uten eksamen for personlig utvikling","En høyskole for folkehelse"],a:1,exp:"Folkehøgskole er et frivillig skoleår uten eksamen, fokusert på personlig utvikling og fellesskap. Det er populært blant ungdom etter videregående."},en:{q:"What is a 'folkehøgskole' (folk high school)?",opts:["A type of upper secondary school","A school without exams for personal development","A university for public health"],a:1,exp:"A folk high school is a voluntary school year without exams, focused on personal development and community. It is popular among young people after upper secondary school."}},
+  {cat:"society",no:{q:"Hva er «trygd»?",opts:["En type skatt","Ytelser fra staten ved sykdom, arbeidsledighet og pensjon","Et sparesystem"],a:1,exp:"Trygd er statlige ytelser til innbyggere i spesielle situasjoner, som sykdom, arbeidsledighet, uførhet eller alderdom."},en:{q:"What is 'trygd' (social security)?",opts:["A type of tax","State benefits in case of illness, unemployment and retirement","A savings system"],a:1,exp:"Social security covers state benefits to residents in special situations, such as illness, unemployment, disability or old age."}},
+  {cat:"society",no:{q:"Hva er skolepliktalder i Norge?",opts:["5 år","6 år","7 år"],a:1,exp:"Barn i Norge begynner på skolen det året de fyller 6 år. Grunnskolen er 10-årig (1.–10. klasse)."},en:{q:"What is the school starting age in Norway?",opts:["5","6","7"],a:1,exp:"Children in Norway start school the year they turn 6. Primary and lower secondary school lasts 10 years (grades 1–10)."}},
+  {cat:"society",no:{q:"Hva er videregående skole?",opts:["Barneskolen","Skolen etter ungdomsskolen for 16–19 åringer","En privat skole"],a:1,exp:"Videregående skole er for elever i alderen 16–19 år. Det tilbyr både studieforberedende og yrkesfaglige programmer."},en:{q:"What is 'videregående skole' (upper secondary school)?",opts:["Primary school","School after lower secondary for 16–19 year olds","A private school"],a:1,exp:"Upper secondary school is for students aged 16–19. It offers both university-preparatory and vocational programmes."}},
+  {cat:"society",no:{q:"Hva er «arbeidsmiljøloven»?",opts:["En lov om arbeidstid og arbeidsforhold","En lov om naturvern","En lov om skatteregler"],a:0,exp:"Arbeidsmiljøloven regulerer rettigheter og plikter for arbeidsgiver og arbeidstaker, inkludert arbeidstid, ferie og oppsigelse."},en:{q:"What is the 'arbeidsmiljøloven' (Working Environment Act)?",opts:["A law about working hours and conditions","A law about nature conservation","A law about tax rules"],a:0,exp:"The Working Environment Act regulates rights and duties for employers and employees, including working hours, holidays and dismissal."}},
+  {cat:"society",no:{q:"Hva er LO i Norge?",opts:["En politisk organisasjon","Landets største arbeidstakerorganisasjon","En statlig etat"],a:1,exp:"LO (Landsorganisasjonen i Norge) er Norges største fagforbund og representerer over 1 million arbeidstakere."},en:{q:"What is LO in Norway?",opts:["A political organisation","The country's largest trade union","A government agency"],a:1,exp:"LO (the Norwegian Confederation of Trade Unions) is Norway's largest trade union, representing over 1 million workers."}},
+  {cat:"society",no:{q:"Hva er «introduksjonsprogrammet»?",opts:["Et program for å lære ski","Et kvalifiseringsprogram for nyankomne flyktninger","En norsk TV-serie"],a:1,exp:"Introduksjonsprogrammet er et obligatorisk 2-årig program for nyankomne flyktninger som inkluderer norskopplæring og arbeidspraksis."},en:{q:"What is the 'introduksjonsprogram' (introduction programme)?",opts:["A programme for learning to ski","A qualification programme for newly arrived refugees","A Norwegian TV series"],a:1,exp:"The introduction programme is a mandatory 2-year programme for newly arrived refugees that includes Norwegian language training and work experience."}},
+
+  // --- RIGHTS & LAWS ---
+  {cat:"rights",no:{q:"Hva er «Allemannsretten»?",opts:["Retten til gratis utdanning","Retten til fri ferdsel i naturen","Retten til gratis helsehjelp"],a:1,exp:"Allemannsretten gir alle rett til å ferdes fritt i utmark, telte og plukke bær og sopp – uavhengig av hvem som eier landet."},en:{q:"What is the 'Allemannsretten' (right to roam)?",opts:["The right to free education","The right to free movement in nature","The right to free healthcare"],a:1,exp:"The right to roam gives everyone the right to move freely in uncultivated land, camp, and pick berries and mushrooms – regardless of who owns the land."}},
+  {cat:"rights",no:{q:"Hva beskytter religionsfriheten?",opts:["Retten til å tilhøre en bestemt religion","Retten til å velge, praktisere eller forlate en religion","Retten til å misjonere"],a:1,exp:"Religionsfriheten beskytter retten til å ha, endre og utøve sin religion uten innblanding fra staten."},en:{q:"What does freedom of religion protect?",opts:["The right to belong to a specific religion","The right to choose, practise or leave a religion","The right to proselytise"],a:1,exp:"Freedom of religion protects the right to hold, change and practise one's religion without interference from the state."}},
+  {cat:"rights",no:{q:"Hva sier diskrimineringsloven?",opts:["At alle behandles likt i skolen","At ingen skal diskrimineres på grunn av etnisitet, kjønn, religion m.m.","At arbeidsgiver bestemmer lønn fritt"],a:1,exp:"Diskrimineringsloven forbyr ulovlig diskriminering på grunn av bl.a. kjønn, etnisitet, religion, funksjonsevne og seksuell orientering."},en:{q:"What does the anti-discrimination law say?",opts:["That everyone is treated equally in school","That no one shall be discriminated against due to ethnicity, gender, religion etc.","That employers freely determine wages"],a:1,exp:"The anti-discrimination law prohibits illegal discrimination on grounds including gender, ethnicity, religion, disability and sexual orientation."}},
+  {cat:"rights",no:{q:"Hva er «taushetsplikt»?",opts:["Plikten til å tie i retten","Plikten til ikke å dele andres personlige opplysninger","Plikten til å svare på spørsmål fra politiet"],a:1,exp:"Taushetsplikt innebærer at visse yrkesgrupper (leger, advokater, prester) er forpliktet til ikke å avsløre personlig informasjon om klientene sine."},en:{q:"What is 'taushetsplikt' (duty of confidentiality)?",opts:["The duty to remain silent in court","The duty not to share others' personal information","The duty to answer questions from police"],a:1,exp:"Duty of confidentiality means certain professions (doctors, lawyers, priests) are obliged not to disclose personal information about their clients."}},
+  {cat:"rights",no:{q:"Hva er barnets rettigheter ifølge FNs barnekonvensjon?",opts:["Barn har rett til å jobbe fra 10 år","Barn har rett til beskyttelse, utdanning og omsorg","Barn har stemmerett fra 15 år"],a:1,exp:"FNs barnekonvensjon gir alle barn rett til bl.a. utdanning, helse, beskyttelse mot vold og rett til å bli hørt. Norge ratifiserte konvensjonen i 1991."},en:{q:"What are children's rights according to the UN Convention on the Rights of the Child?",opts:["Children have the right to work from age 10","Children have the right to protection, education and care","Children have voting rights from age 15"],a:1,exp:"The UN Convention on the Rights of the Child gives all children the right to education, health, protection from violence and the right to be heard. Norway ratified the convention in 1991."}},
+  {cat:"rights",no:{q:"Hva er «rettssikkerhet»?",opts:["Retten til å kjøpe våpen","Borgernes rett til en rettferdig rettergang","Politiets rett til å pågripe hvem som helst"],a:1,exp:"Rettssikkerhet innebærer at borgerne er beskyttet mot vilkårlige inngrep fra staten og har rett til en rettferdig rettergang."},en:{q:"What is 'rettssikkerhet' (rule of law/due process)?",opts:["The right to buy weapons","Citizens' right to a fair trial","The police's right to arrest anyone"],a:1,exp:"Due process means citizens are protected against arbitrary state interference and have the right to a fair trial."}},
+
+  // --- CULTURE & TRADITIONS ---
+  {cat:"culture",no:{q:"Hva feires 17. mai?",opts:["Norges frigjøringsdag fra Tyskland","Grunnlovens vedtagelse","Unionsoppløsningen med Sverige"],a:1,exp:"17. mai feires som Grunnlovsdagen siden 1814. Det er Norges nasjonaldag med barnetog og folkefester."},en:{q:"What is celebrated on 17 May?",opts:["Norway's liberation from Germany","The adoption of the Constitution","The dissolution of the union with Sweden"],a:1,exp:"17 May has been celebrated as Constitution Day since 1814. It is Norway's national day with children's parades and folk celebrations."}},
+  {cat:"culture",no:{q:"Hva er «bunad»?",opts:["En norsk matrett","En norsk folkedrakt","En type norsk musikk"],a:1,exp:"Bunad er en norsk folkedrakt som brukes ved spesielle anledninger som 17. mai og bryllup. Det finnes mange regionale varianter."},en:{q:"What is a 'bunad'?",opts:["A Norwegian dish","A Norwegian folk costume","A type of Norwegian music"],a:1,exp:"A bunad is a Norwegian folk costume worn on special occasions such as 17 May and weddings. There are many regional variants."}},
+  {cat:"culture",no:{q:"Hva er «friluftsliv»?",opts:["En norsk idrett","En tradisjon for å ferdes og være ute i naturen","Et norsk festivalprogram"],a:1,exp:"Friluftsliv er en sentral norsk verdi som handler om å tilbringe tid utendørs i naturen – enten det er fjellvandring, ski eller båtliv."},en:{q:"What is 'friluftsliv' (outdoor life)?",opts:["A Norwegian sport","A tradition of spending time outdoors in nature","A Norwegian festival programme"],a:1,exp:"Friluftsliv is a central Norwegian value about spending time outdoors in nature – whether hiking, skiing or boating."}},
+  {cat:"culture",no:{q:"Hva heter Norges nasjonalsang?",opts:["Ja, vi elsker dette landet","Norge i rødt, hvitt og blått","Bjørnson og Grieg"],a:0,exp:"«Ja, vi elsker dette landet» ble skrevet av Bjørnstjerne Bjørnson med musikk av Rikard Nordraak i 1864."},en:{q:"What is Norway's national anthem called?",opts:["Ja, vi elsker dette landet","Norge i rødt, hvitt og blått","Bjørnson og Grieg"],a:0,exp:"'Ja, vi elsker dette landet' was written by Bjørnstjerne Bjørnson with music by Rikard Nordraak in 1864."}},
+  {cat:"culture",no:{q:"Hva er «lutefisk»?",opts:["En norsk sport","En tradisjonell norsk fiskerett","Et norsk musikkinstrument"],a:1,exp:"Lutefisk er en tradisjonell norsk matrett laget av tørket fisk (torsk) som har vært lagt i vann med lut. Det spises særlig i julesesongen."},en:{q:"What is 'lutefisk'?",opts:["A Norwegian sport","A traditional Norwegian fish dish","A Norwegian musical instrument"],a:1,exp:"Lutefisk is a traditional Norwegian dish made from dried fish (cod) that has been soaked in water with lye. It is eaten especially during Christmas."}},
+  {cat:"culture",no:{q:"Hva er «rømmegrøt»?",opts:["En norsk saus","En tradisjonell norsk grøt av rømme og mel","Et norsk bær"],a:1,exp:"Rømmegrøt er en tradisjonell norsk grøt laget av rømme, mel og smør. Den serveres gjerne med sukker, kanel og smør."},en:{q:"What is 'rømmegrøt'?",opts:["A Norwegian sauce","A traditional Norwegian porridge made from sour cream and flour","A Norwegian berry"],a:1,exp:"Rømmegrøt is a traditional Norwegian porridge made from sour cream, flour and butter. It is typically served with sugar, cinnamon and butter."}},
+  {cat:"culture",no:{q:"Hva heter Norges mest kjente dramatiker?",opts:["Knut Hamsun","Henrik Ibsen","Sigrid Undset"],a:1,exp:"Henrik Ibsen (1828–1906) er Norges mest kjente dramatiker og regnes som en av verdens største skuespillforfattere. Kjente verk er bl.a. «Et dukkehjem» og «Peer Gynt»."},en:{q:"Who is Norway's most famous playwright?",opts:["Knut Hamsun","Henrik Ibsen","Sigrid Undset"],a:1,exp:"Henrik Ibsen (1828–1906) is Norway's most famous playwright and is considered one of the world's greatest dramatists. Famous works include 'A Doll's House' and 'Peer Gynt'."}},
+  {cat:"culture",no:{q:"Hva er «Holmenkollen»?",opts:["En norsk politikker","En skikonkurranse og -arena i Oslo","En norsk fjord"],a:1,exp:"Holmenkollen er en verdensberømt skiarena i Oslo med skihopp, langrenn og skiskytting. Holmenkollrennet arrangeres hvert år i mars."},en:{q:"What is 'Holmenkollen'?",opts:["A Norwegian politician","A ski competition and arena in Oslo","A Norwegian fjord"],a:1,exp:"Holmenkollen is a world-famous ski arena in Oslo with ski jumping, cross-country skiing and biathlon. The Holmenkollen ski festival is held every year in March."}},
+  {cat:"culture",no:{q:"Hva er «Hardangerbunad»?",opts:["En type mat fra Hardanger","Den mest kjente typen bunad fra Hardangerregionen","En norsk dans"],a:1,exp:"Hardangerbunaden fra Hardanger-regionen på Vestlandet er en av Norges mest kjente regionale folkedrakter, kjent for sin vakre broderi."},en:{q:"What is a 'Hardangerbunad'?",opts:["A type of food from Hardanger","The most famous type of bunad from the Hardanger region","A Norwegian dance"],a:1,exp:"The Hardanger bunad from the Hardanger region of western Norway is one of Norway's most famous regional folk costumes, known for its beautiful embroidery."}},
+  {cat:"culture",no:{q:"Hva er «Nynorsk»?",opts:["Et gammelt norsk språk som ikke brukes lenger","En av de to offisielle norske skriftspråkene","Et dialekt fra Nord-Norge"],a:1,exp:"Nynorsk er en av to offisielle norske skriftnormer, ved siden av bokmål. Nynorsk er basert på norske dialekter og ble utviklet av Ivar Aasen på 1800-tallet."},en:{q:"What is 'Nynorsk'?",opts:["An old Norwegian language no longer used","One of the two official Norwegian written standards","A dialect from northern Norway"],a:1,exp:"Nynorsk is one of two official Norwegian written standards, alongside bokmål. Nynorsk is based on Norwegian dialects and was developed by Ivar Aasen in the 19th century."}},
+  {cat:"culture",no:{q:"Hva er «juleaften» i Norge?",opts:["25. desember","24. desember","26. desember"],a:1,exp:"I Norge feires jul hovedsakelig juleaften, den 24. desember, med familiesammenkomst, gaver og julemiddag."},en:{q:"When is 'juleaften' (Christmas Eve) in Norway?",opts:["25 December","24 December","26 December"],a:1,exp:"In Norway, Christmas is mainly celebrated on juleaften (Christmas Eve), 24 December, with family gatherings, gifts and Christmas dinner."}},
+  {cat:"culture",no:{q:"Hva er «påske» tradisjonelt forbundet med i Norge?",opts:["Strandferie i sør","Fjelltur og langrenn","Karneval og masker"],a:1,exp:"Norsk påsketradisjon er sterkt knyttet til fjelltur, langrenn og hytteliv. Mange nordmenn drar til fjells i påskeferien."},en:{q:"What is 'påske' (Easter) traditionally associated with in Norway?",opts:["Beach holidays in the south","Mountain trips and cross-country skiing","Carnival and masks"],a:1,exp:"Norwegian Easter tradition is strongly linked to mountain trips, cross-country skiing and cabin life. Many Norwegians go to the mountains during Easter."}},
+
+  // --- NORWAY & THE WORLD ---
+  {cat:"world",no:{q:"Er Norge medlem av EU?",opts:["Ja","Nei","Bare delvis"],a:1,exp:"Norge er ikke EU-medlem. Nordmenn stemte nei til EU i 1972 og igjen i 1994. Norge er imidlertid med i EØS."},en:{q:"Is Norway a member of the EU?",opts:["Yes","No","Only partly"],a:1,exp:"Norway is not an EU member. Norwegians voted no to EU membership in 1972 and again in 1994. However, Norway is part of the EEA."}},
+  {cat:"world",no:{q:"Hva er EØS?",opts:["En militærallianse","Det europeiske økonomiske samarbeidsområdet","En handelsavtale med USA"],a:1,exp:"EØS (Det europeiske økonomiske samarbeidsområdet) gir Norge tilgang til EUs indre marked uten å være EU-medlem."},en:{q:"What is the EEA?",opts:["A military alliance","The European Economic Area","A trade agreement with the USA"],a:1,exp:"The EEA (European Economic Area) gives Norway access to the EU's internal market without being an EU member."}},
+  {cat:"world",no:{q:"Er Norge medlem av NATO?",opts:["Ja, siden 1949","Nei","Ja, siden 2004"],a:0,exp:"Norge var ett av de tolv grunnleggerlandene da NATO ble opprettet i 1949."},en:{q:"Is Norway a member of NATO?",opts:["Yes, since 1949","No","Yes, since 2004"],a:0,exp:"Norway was one of the twelve founding members when NATO was established in 1949."}},
+  {cat:"world",no:{q:"Hva er FN?",opts:["En europeisk union","De forente nasjoner – en internasjonal organisasjon for fred og samarbeid","Et nordisk samarbeidsorgan"],a:1,exp:"FN (De forente nasjoner) ble opprettet i 1945 for å fremme internasjonal fred, sikkerhet og samarbeid. Norge var med fra starten."},en:{q:"What is the UN?",opts:["A European union","The United Nations – an international organisation for peace and cooperation","A Nordic cooperation body"],a:1,exp:"The UN (United Nations) was established in 1945 to promote international peace, security and cooperation. Norway was a founding member."}},
+  {cat:"world",no:{q:"Hva er Norges viktigste eksportvare?",opts:["Fisk","Olje og gass","Tømmer"],a:1,exp:"Olje og gass er Norges viktigste eksportvare og bidrar til store statsinntekter som spares i Oljefondet."},en:{q:"What is Norway's most important export?",opts:["Fish","Oil and gas","Timber"],a:1,exp:"Oil and gas are Norway's most important exports and contribute to large state revenues saved in the Oil Fund."}},
+  {cat:"world",no:{q:"Hva er Norges offisielle navn?",opts:["Det norske kongedømme","Kongeriket Norge","Den norske stat"],a:1,exp:"Norges offisielle navn er Kongeriket Norge, som gjenspeiler at det er et konstitusjonelt monarki."},en:{q:"What is Norway's official name?",opts:["The Norwegian Kingdom","The Kingdom of Norway","The Norwegian State"],a:1,exp:"Norway's official name is Kongeriket Norge (the Kingdom of Norway), reflecting that it is a constitutional monarchy."}},
+  {cat:"world",no:{q:"Hva er Schengen-avtalen?",opts:["En militæravtale","En avtale om fri bevegelse av personer i Europa","En handelsavtale"],a:1,exp:"Schengen-avtalen tillater fri bevegelse av personer mellom de fleste europeiske land uten passkontroll. Norge er med i Schengen-samarbeidet."},en:{q:"What is the Schengen Agreement?",opts:["A military agreement","An agreement on free movement of persons in Europe","A trade agreement"],a:1,exp:"The Schengen Agreement allows free movement of persons between most European countries without passport control. Norway is part of the Schengen area."}},
+  {cat:"world",no:{q:"Hva er Nobels fredspris?",opts:["En norsk vitenskapspris","En internasjonal pris for fredsarbeid delt ut i Oslo","En litteraturpris"],a:1,exp:"Nobels fredspris deles ut i Oslo hvert år den 10. desember av den norske Nobelkomiteen. Det er den eneste Nobel-prisen som deles ut i Norge (de andre deles ut i Stockholm)."},en:{q:"What is the Nobel Peace Prize?",opts:["A Norwegian science prize","An international prize for peace work awarded in Oslo","A literature prize"],a:1,exp:"The Nobel Peace Prize is awarded in Oslo every year on 10 December by the Norwegian Nobel Committee. It is the only Nobel Prize awarded in Norway (the others are awarded in Stockholm)."}},
+  {cat:"world",no:{q:"Hva er Nordens råd?",opts:["En militærallianse","Et samarbeidsorgan for de nordiske landene","En domstol i Norden"],a:1,exp:"Nordisk råd er et parlamentarisk samarbeidsorgan for de nordiske landene (Danmark, Finland, Island, Norge og Sverige) og ble grunnlagt i 1952."},en:{q:"What is the Nordic Council?",opts:["A military alliance","A cooperation body for the Nordic countries","A court in the Nordic region"],a:1,exp:"The Nordic Council is a parliamentary cooperation body for the Nordic countries (Denmark, Finland, Iceland, Norway and Sweden) and was founded in 1952."}},
+  {cat:"world",no:{q:"Hva er Norges bistandspolitikk?",opts:["Norge gir ikke utenlandsk bistand","Norge er et av landene som gir mest bistand per innbygger","Norge gir bare bistand til EU-land"],a:1,exp:"Norge er et av verdens ledende giverland og bruker rundt 1% av bruttonasjonalinntekten (BNI) på utenlandsk bistand, langt over FNs mål på 0,7%."},en:{q:"What is Norway's aid policy?",opts:["Norway does not give foreign aid","Norway is one of the countries giving the most aid per capita","Norway only gives aid to EU countries"],a:1,exp:"Norway is one of the world's leading donor countries and spends around 1% of gross national income (GNI) on foreign aid, well above the UN target of 0.7%."}},
+
+  // --- EVERYDAY LIFE ---
+  {cat:"everyday",no:{q:"Hva er «russ»?",opts:["En norsk politiker","Avgangselever fra videregående skole som feirer avslutningen","En type norsk mat"],a:1,exp:"Russefeiringen er en tradisjon der avgangselever fra videregående skole feirer avslutningen i mai, kjent for røde eller blå kjeledresser."},en:{q:"What is 'russ'?",opts:["A Norwegian politician","Graduating upper secondary students celebrating their graduation","A type of Norwegian food"],a:1,exp:"The 'russ' celebration is a tradition where upper secondary school graduates celebrate their graduation in May, known for red or blue overalls."}},
+  {cat:"everyday",no:{q:"Hva er «dugnad»?",opts:["En type norsk sang","Frivillig fellesarbeid i nabolag eller foreninger","En norsk politisk bevegelse"],a:1,exp:"Dugnad er en typisk norsk tradisjon der folk arbeider frivillig og gratis sammen, for eksempel i borettslag eller idrettslag."},en:{q:"What is 'dugnad'?",opts:["A type of Norwegian song","Voluntary communal work in neighbourhoods or associations","A Norwegian political movement"],a:1,exp:"Dugnad is a typical Norwegian tradition where people work voluntarily and for free together, for example in housing cooperatives or sports clubs."}},
+  {cat:"everyday",no:{q:"Hva er «koie»?",opts:["En type fisk","En enkel hytte eller brakke i naturen","En norsk dans"],a:1,exp:"En koie er en enkel, ubetjent hytte i naturen, ofte brukt som ly under turer i fjellet eller skogen."},en:{q:"What is a 'koie'?",opts:["A type of fish","A simple cabin or shelter in nature","A Norwegian dance"],a:1,exp:"A koie is a simple, unstaffed hut in nature, often used as shelter during trips in the mountains or forest."}},
+  {cat:"everyday",no:{q:"Hva er «matpakke»?",opts:["En norsk pakketjeneste","En nistepakke med brødskiver man tar med til jobb eller skole","En norsk rett fra butikk"],a:1,exp:"Matpakke er en typisk norsk tradisjon med hjemmesmurt brødskiver i en pose eller boks, tatt med til jobb, skole eller tur."},en:{q:"What is a 'matpakke'?",opts:["A Norwegian parcel service","A packed lunch with sandwiches taken to work or school","A ready-made meal from the shop"],a:1,exp:"Matpakke is a typical Norwegian tradition of home-made sandwiches in a bag or box, taken to work, school or on trips."}},
+  {cat:"everyday",no:{q:"Hva betyr «takk for maten»?",opts:["La oss spise","Takk for maten (etter et måltid)","Jeg er sulten"],a:1,exp:"«Takk for maten» sies til den som har laget mat, som en høflig avslutning på måltidet. Det er en viktig del av norsk bordskikk."},en:{q:"What does 'takk for maten' mean?",opts:["Let us eat","Thank you for the food (after a meal)","I am hungry"],a:1,exp:"'Takk for maten' is said to the person who prepared the food, as a polite ending to a meal. It is an important part of Norwegian table manners."}},
+  {cat:"everyday",no:{q:"Hva er «hytte»?",opts:["En norsk restaurant","En fritidsbolig i naturen","Et norsk skip"],a:1,exp:"Hytte er en fritidsbolig, gjerne i fjellet eller ved sjøen. Nordmenn er svært glade i hyttekulturen og mange familier eier eller leier hytte."},en:{q:"What is a 'hytte' (cabin)?",opts:["A Norwegian restaurant","A holiday home in nature","A Norwegian ship"],a:1,exp:"A hytte (cabin) is a holiday home, often in the mountains or by the sea. Norwegians are very fond of cabin culture and many families own or rent one."}},
+  {cat:"everyday",no:{q:"Hva er «brunost»?",opts:["En hvit norsk ost","En brun norsk mysost med søtlig smak","En norsk dessert"],a:1,exp:"Brunost er en typisk norsk ost laget av kokt myse med en søtlig, karamellaktig smak. Den vanligste varianten er Gudbrandsdalsost."},en:{q:"What is 'brunost' (brown cheese)?",opts:["A white Norwegian cheese","A brown Norwegian whey cheese with a sweet taste","A Norwegian dessert"],a:1,exp:"Brunost is a typical Norwegian cheese made from boiled whey with a sweet, caramel-like taste. The most common variety is Gudbrandsdalsost."}},
+  {cat:"everyday",no:{q:"Hva er «vinterbad»?",opts:["En norsk badestrand","Tradisjonen med å bade i kaldt vann om vinteren","En type norsk basseng"],a:1,exp:"Vinterbad – å bade i kaldt sjø- eller elvevann om vinteren – har blitt svært populært i Norge. Det antas å ha positive helseeffekter."},en:{q:"What is 'vinterbad' (winter bathing)?",opts:["A Norwegian beach","The tradition of bathing in cold water in winter","A type of Norwegian pool"],a:1,exp:"Winter bathing – swimming in cold sea or river water in winter – has become very popular in Norway. It is believed to have positive health effects."}},
+
+  // --- HEALTH ---
+  {cat:"health",no:{q:"Hva er «Helsenorge»?",opts:["Et norsk sykehus","En statlig helseportal med tjenester og informasjon","Et norsk legemiddelfirma"],a:1,exp:"Helsenorge.no er den offentlige helseportalen der nordmenn kan bestille time hos fastlegen, se journaler og få helseinformasjon."},en:{q:"What is 'Helsenorge'?",opts:["A Norwegian hospital","A state health portal with services and information","A Norwegian pharmaceutical company"],a:1,exp:"Helsenorge.no is the public health portal where Norwegians can book appointments with their GP, view medical records and get health information."}},
+  {cat:"health",no:{q:"Hva er «egenandel» hos lege?",opts:["Gratis konsultasjon","Beløpet pasienten betaler selv ved legekonsultasjon","En statlig refusjon"],a:1,exp:"Egenandel er den delen av legebesøket du betaler selv. Når du har betalt over et visst beløp i løpet av et år (frikortgrensen), får du frikort og slipper egenandel resten av året."},en:{q:"What is 'egenandel' (patient co-payment) at the doctor?",opts:["A free consultation","The amount the patient pays themselves at a doctor's visit","A state refund"],a:1,exp:"Co-payment is the portion of a doctor's visit you pay yourself. When you have paid above a certain amount in a year (the exemption threshold), you get an exemption card and avoid co-payments for the rest of the year."}},
+  {cat:"health",no:{q:"Hva er «legevakt»?",opts:["Et planlagt legekonsultasjon","Akutt medisinsk hjelp utenfor fastlegens åpningstider","En spesialistpoliklinikk"],a:1,exp:"Legevakten gir akutt medisinsk hjelp når du ikke kan vente til neste dag og fastlegen ikke er tilgjengelig. Nødtelefon er 116 117."},en:{q:"What is 'legevakt' (emergency GP service)?",opts:["A planned doctor's appointment","Acute medical help outside regular GP hours","A specialist outpatient clinic"],a:1,exp:"The emergency GP service provides acute medical help when you cannot wait until the next day and your regular GP is unavailable. Emergency number is 116 117."}},
+  {cat:"health",no:{q:"Hva er nødnummeret for ambulanse i Norge?",opts:["110","112","113"],a:2,exp:"113 er nødnummeret for ambulanse i Norge. 110 er brann, 112 er politi."},en:{q:"What is the emergency number for ambulance in Norway?",opts:["110","112","113"],a:2,exp:"113 is the emergency number for ambulance in Norway. 110 is fire, 112 is police."}},
+  {cat:"health",no:{q:"Hva er «Helsestasjonen»?",opts:["Et apotek","Et tilbud for gravide og barn med veiledning og vaksinasjon","Et privat sykehus"],a:1,exp:"Helsestasjonen er et gratis kommunalt tilbud til gravide og barn (0–5 år) og ungdom, med helsekontroller og vaksinasjoner."},en:{q:"What is 'Helsestasjonen' (health centre)?",opts:["A pharmacy","A service for pregnant women and children with guidance and vaccination","A private hospital"],a:1,exp:"The health centre is a free municipal service for pregnant women and children (0–5 years) and young people, with health checks and vaccinations."}},
+
+  // --- SAMI PEOPLE ---
+  {cat:"sami",no:{q:"Hvem er samer?",opts:["En norsk folkegruppe fra Østlandet","Urfolk i Nord-Skandinavia og Russland","Innvandrere fra Sverige"],a:1,exp:"Samene er Skandinavias urfolk og bor tradisjonelt i Sápmi – et område som strekker seg over Norge, Sverige, Finland og Russland."},en:{q:"Who are the Sami people?",opts:["A Norwegian ethnic group from Eastern Norway","Indigenous people of northern Scandinavia and Russia","Immigrants from Sweden"],a:1,exp:"The Sami are Scandinavia's indigenous people and traditionally live in Sápmi – an area spanning Norway, Sweden, Finland and Russia."}},
+  {cat:"sami",no:{q:"Hva heter samenes eget parlament i Norge?",opts:["Nordisk råd","Sametinget","Samisk råd"],a:1,exp:"Sametinget er samenes folkevalgte organ i Norge, opprettet i 1989 med sete i Karasjok."},en:{q:"What is the Sami people's own parliament in Norway called?",opts:["Nordic Council","Sametinget (Sami Parliament)","Sami Council"],a:1,exp:"The Sami Parliament is the Sami people's elected body in Norway, established in 1989 and based in Karasjok."}},
+  {cat:"sami",no:{q:"Hva er samisk nasjonaldag?",opts:["6. februar","17. mai","1. januar"],a:0,exp:"6. februar markeres som samenes nasjonaldag til minne om det første samiske landsmøtet i Trondheim i 1917."},en:{q:"What is the Sami national day?",opts:["6 February","17 May","1 January"],a:0,exp:"6 February is marked as the Sami national day in memory of the first Sami national assembly in Trondheim in 1917."}},
+
+  // --- ADDITIONAL MIXED ---
+  {cat:"government",no:{q:"Hva er Grunnlovens paragraf 100?",opts:["Om kongemakten","Om ytringsfrihet","Om retten til utdanning"],a:1,exp:"Grunnlovens § 100 beskytter ytringsfriheten og fastslår at myndighetene ikke kan begrense den frie meningsutvekslingen uten særlig begrunnelse."},en:{q:"What is Article 100 of the Constitution about?",opts:["About royal power","About freedom of expression","About the right to education"],a:1,exp:"Article 100 of the Constitution protects freedom of expression and states that authorities cannot restrict the free exchange of views without special justification."}},
+  {cat:"society",no:{q:"Hva er «Husbanken»?",opts:["En norsk privatbank","Statens bank for boligfinansiering og boligpolitikk","En organisasjon for huseiere"],a:1,exp:"Husbanken er en statlig bank som gir lån og tilskudd til boligformål, særlig for vanskeligstilte på boligmarkedet."},en:{q:"What is 'Husbanken'?",opts:["A Norwegian private bank","The state bank for housing finance and housing policy","An organisation for homeowners"],a:1,exp:"Husbanken is a state bank that provides loans and grants for housing purposes, particularly for those disadvantaged in the housing market."}},
+  {cat:"culture",no:{q:"Hva er «Bergenstest»?",opts:["En norsk ostetest","En norsk språktest for høyere nivå (C1)","En test for å bo i Bergen"],a:1,exp:"Bergenstesten (Test i norsk – høyere nivå) er en norsk språktest på C1-nivå, brukt blant annet som dokumentasjon for opptak til norske universiteter."},en:{q:"What is the 'Bergenstest'?",opts:["A Norwegian cheese test","A Norwegian language test at a higher level (C1)","A test for living in Bergen"],a:1,exp:"The Bergen Test (Test in Norwegian – higher level) is a Norwegian language test at C1 level, used among other things as documentation for admission to Norwegian universities."}},
+  {cat:"everyday",no:{q:"Hva er «borettslag»?",opts:["Et boliglån","En type boligsammenslutning der beboere eier andeler","En statlig boligetat"],a:1,exp:"Et borettslag er en boligsammenslutning der beboerne eier andeler i stedet for selve leilighetene. Det er en vanlig boligform i Norge."},en:{q:"What is a 'borettslag' (housing cooperative)?",opts:["A home loan","A type of housing association where residents own shares","A state housing agency"],a:1,exp:"A housing cooperative is a housing association where residents own shares rather than the flats themselves. It is a common form of housing in Norway."}},
+  {cat:"government",no:{q:"Hva er «Lov om barn og foreldre»?",opts:["En lov om barnetrygd","En lov som regulerer foreldreansvar og barns rettigheter","En lov om skolegang"],a:1,exp:"Barneloven (Lov om barn og foreldre) regulerer rettigheter og plikter mellom foreldre og barn, inkludert foreldreansvar, samvær og underholdsbidrag."},en:{q:"What is the 'Lov om barn og foreldre' (Children and Parents Act)?",opts:["A law about child benefit","A law regulating parental responsibility and children's rights","A law about schooling"],a:1,exp:"The Children Act regulates rights and duties between parents and children, including parental responsibility, contact arrangements and maintenance."}},
+  {cat:"society",no:{q:"Hva er «Norsk Folkemuseum»?",opts:["Et museum for norsk samtidskunst","Et friluftsmuseum på Bygdøy som viser norsk kulturhistorie","Et musikk-arkiv"],a:1,exp:"Norsk Folkemuseum på Bygdøy i Oslo er et friluftsmuseum med over 150 historiske bygninger fra hele Norge, inkludert stavkirken fra Gol."},en:{q:"What is the 'Norsk Folkemuseum' (Norwegian Folk Museum)?",opts:["A museum for contemporary Norwegian art","An open-air museum at Bygdøy showing Norwegian cultural history","A music archive"],a:1,exp:"The Norwegian Folk Museum at Bygdøy in Oslo is an open-air museum with over 150 historical buildings from across Norway, including the stave church from Gol."}},
+  {cat:"history",no:{q:"Hvem var Fridtjof Nansen?",opts:["En norsk politiker fra 1800-tallet","En norsk polfarer, vitenskapsmann og humanist","En norsk forfatter"],a:1,exp:"Fridtjof Nansen (1861–1930) var polfarer, oseanograf og humanitær. Han krysset Grønlands ismark og ledet Fram-ekspedisjonen. Han fikk Nobels fredspris i 1922."},en:{q:"Who was Fridtjof Nansen?",opts:["A Norwegian politician from the 19th century","A Norwegian polar explorer, scientist and humanitarian","A Norwegian author"],a:1,exp:"Fridtjof Nansen (1861–1930) was a polar explorer, oceanographer and humanitarian. He crossed Greenland's ice cap and led the Fram expedition. He received the Nobel Peace Prize in 1922."}},
+  {cat:"culture",no:{q:"Hvem malte «Skrik»?",opts:["Christian Krogh","Edvard Munch","Lars Hertervig"],a:1,exp:"«Skrik» er malt av Edvard Munch i 1893. Det er ett av verdens mest gjenkjennelige kunstverk og symboliserer angst og eksistensielt ubehag."},en:{q:"Who painted 'The Scream'?",opts:["Christian Krogh","Edvard Munch","Lars Hertervig"],a:1,exp:"'The Scream' was painted by Edvard Munch in 1893. It is one of the world's most recognisable artworks and symbolises anxiety and existential unease."}},
+  {cat:"world",no:{q:"Hva er Norges offisielle språkpolitikk?",opts:["Norsk er det eneste offisielle språket","Bokmål og nynorsk er likestilte skriftspråk, og samisk har offisiell status","Engelsk er offisielt likestilt med norsk"],a:1,exp:"Norge har to offisielle skriftnormer – bokmål og nynorsk – som er likestilte. I tillegg har samisk offisiell status i samiske kommuner."},en:{q:"What is Norway's official language policy?",opts:["Norwegian is the only official language","Bokmål and nynorsk are equal written standards, and Sami has official status","English is officially equal to Norwegian"],a:1,exp:"Norway has two official written standards – bokmål and nynorsk – which are equal. In addition, Sami has official status in Sami municipalities."}},
+  {cat:"society",no:{q:"Hva er «integreringsloven»?",opts:["En lov om norsk statsborgerskap","En lov som regulerer opplæring og kvalifisering av innvandrere","En lov om innvandringskontroll"],a:1,exp:"Integreringsloven trådte i kraft i 2021 og regulerer norskopplæring, introduksjonsprogrammet og andre integreringstiltak for nyankomne innvandrere og flyktninger."},en:{q:"What is the 'integreringsloven' (Integration Act)?",opts:["A law about Norwegian citizenship","A law regulating training and qualification of immigrants","A law about immigration control"],a:1,exp:"The Integration Act came into force in 2021 and regulates Norwegian language training, the introduction programme and other integration measures for newly arrived immigrants and refugees."}},
+  {cat:"government",no:{q:"Hva er «Datatilsynet»?",opts:["En statlig etat for IT-sikkerhet","Et uavhengig organ som håndhever personvernlovgivningen","En privat teknologiorganisasjon"],a:1,exp:"Datatilsynet er et uavhengig forvaltningsorgan som håndhever personopplysningsloven og GDPR i Norge, og beskytter innbyggernes personvernrettigheter."},en:{q:"What is 'Datatilsynet' (the Norwegian Data Protection Authority)?",opts:["A state agency for IT security","An independent body that enforces data protection legislation","A private technology organisation"],a:1,exp:"The Norwegian Data Protection Authority is an independent administrative body that enforces the Personal Data Act and GDPR in Norway, protecting citizens' privacy rights."}},
+  {cat:"history",no:{q:"Hva er «Grunnlovsjubileet»?",opts:["Feiringen av Norges 100-årsdag","Feiringen av grunnlovens 200-årsdag i 2014","En norsk militærparade"],a:1,exp:"I 2014 feiret Norge grunnlovens 200-årsjubileum med store feiringer over hele landet. Grunnloven fra 1814 er en av verdens eldste demokratiske grunnlover."},en:{q:"What is 'Grunnlovsjubileet'?",opts:["The celebration of Norway's 100th anniversary","The celebration of the Constitution's 200th anniversary in 2014","A Norwegian military parade"],a:1,exp:"In 2014, Norway celebrated the 200th anniversary of the Constitution with major celebrations across the country. The 1814 Constitution is one of the world's oldest democratic constitutions."}},
+  {cat:"culture",no:{q:"Hva er «stavkirke»?",opts:["Et moderne norsk kirkebygg","En type middelalderkirke bygget i tre","En steinkirke fra vikingtiden"],a:1,exp:"Stavkirker er norske trekirker fra middelalderen, bygget av stående trestolper. Det finnes 28 bevarte stavkirker i Norge, mest kjent er Heddal stavkirke."},en:{q:"What is a 'stavkirke' (stave church)?",opts:["A modern Norwegian church building","A type of medieval church built in wood","A stone church from the Viking Age"],a:1,exp:"Stave churches are Norwegian wooden churches from the Middle Ages, built using vertical wooden posts. There are 28 preserved stave churches in Norway, the most famous being Heddal stave church."}},
+  {cat:"society",no:{q:"Hva er «Statens vegvesen»?",opts:["Et privat veiselskap","Den statlige etaten ansvarlig for veger og trafikk","Et selskap for tog og buss"],a:1,exp:"Statens vegvesen er den statlige etaten som planlegger, bygger og drifter riksveger og europaveger i Norge, samt har ansvar for trafikkopplæring og kjøretøykontroll."},en:{q:"What is 'Statens vegvesen' (Norwegian Public Roads Administration)?",opts:["A private road company","The state agency responsible for roads and traffic","A company for trains and buses"],a:1,exp:"The Norwegian Public Roads Administration is the state agency that plans, builds and operates national roads in Norway, and is also responsible for driver training and vehicle inspection."}},
+  {cat:"rights",no:{q:"Hva er «folkeregisteret»?",opts:["Et register over norske folkesanger","Det sentrale registeret over Norges befolkning","Et register over statsborgere"],a:1,exp:"Folkeregisteret er det sentrale registeret over personer bosatt i Norge. Her registreres fødsel, adresse, sivilstand og statsborgerskap."},en:{q:"What is 'folkeregisteret' (the National Population Register)?",opts:["A register of Norwegian folk songs","The central register of Norway's population","A register of citizens only"],a:1,exp:"The National Population Register is the central register of persons residing in Norway. Birth, address, marital status and citizenship are registered here."}},
+  {cat:"everyday",no:{q:"Hva er «vinterdekk» påbudt i Norge?",opts:["Bare i Nord-Norge","Fra 1. oktober til 1. mai over hele landet","Fra 1. november til 1. april, men lover varierer"],a:2,exp:"Vinterdekk er ikke lovpålagt i Norge med en fast dato, men det er ulovlig å kjøre med dekk som ikke passer kjøreforholdene. Praktisk sett bruker de fleste vinterdekk fra november til april."},en:{q:"When are winter tyres required in Norway?",opts:["Only in northern Norway","From 1 October to 1 May nationwide","From 1 November to 1 April, but laws vary"],a:2,exp:"Winter tyres are not mandated by fixed dates in Norway, but it is illegal to drive with tyres not suited to driving conditions. In practice most people use winter tyres from November to April."}},
+  {cat:"government",no:{q:"Hva er formålet med riksrevisjonen?",opts:["Å kontrollere private selskaper","Å kontrollere statens pengebruk på vegne av Stortinget","Å bestemme statsbudsjettet"],a:1,exp:"Riksrevisjonen er Stortingets kontrollorgan og gjennomfører revisjon og kontroll av statlig pengebruk for å sikre at offentlige midler brukes effektivt og riktig."},en:{q:"What is the purpose of the Office of the Auditor General (Riksrevisjonen)?",opts:["To audit private companies","To audit the state's spending on behalf of the Storting","To determine the state budget"],a:1,exp:"The Office of the Auditor General is the Storting's control body and conducts audits and reviews of state spending to ensure public funds are used effectively and correctly."}},
+  {cat:"world",no:{q:"Hva er «Den norske kirke»?",opts:["En privat religiøs organisasjon","Den evangelisk-lutherske folkekirken i Norge","En katolsk institusjon"],a:1,exp:"Den norske kirke er en evangelisk-luthersk kirke og var statskirke frem til 2017 da den ble skilt fra staten. Den er fortsatt Norges største trossamfunn."},en:{q:"What is 'Den norske kirke' (the Church of Norway)?",opts:["A private religious organisation","The Evangelical Lutheran church in Norway","A Catholic institution"],a:1,exp:"The Church of Norway is an Evangelical Lutheran church and was the state church until 2017 when it was separated from the state. It remains Norway's largest religious community."}},
+  {cat:"history",no:{q:"Hvem oppdaget Amerika ifølge norrøne sagaer?",opts:["Erik den røde","Leiv Eiriksson","Bjarne Herjulfsson"],a:1,exp:"Leiv Eiriksson skal ifølge sagaene ha oppdaget Nord-Amerika (Vinland) rundt år 1000, lenge før Columbus."},en:{q:"Who discovered America according to Norse sagas?",opts:["Erik the Red","Leif Eriksson","Bjarni Herjólfsson"],a:1,exp:"According to the sagas, Leif Eriksson discovered North America (Vinland) around year 1000, long before Columbus."}},
+  {cat:"geography",no:{q:"Hva er «Lofoten»?",opts:["Et fjell i Jotunheimen","En øygruppe i Nord-Norge kjent for fiskevær og natur","En by i Trøndelag"],a:1,exp:"Lofoten er en øygruppe i Nordland fylke, kjent for dramatisk natur, tradisjonelle fiskevær og torskefiske. Det er et populært reisemål."},en:{q:"What is 'Lofoten'?",opts:["A mountain in Jotunheimen","An archipelago in northern Norway known for fishing villages and nature","A town in Trøndelag"],a:1,exp:"Lofoten is an archipelago in Nordland county, known for dramatic scenery, traditional fishing villages and cod fishing. It is a popular travel destination."}},
+  {cat:"society",no:{q:"Hva er minstealder for å kjøpe alkohol i Norge?",opts:["16 år","18 år (øl/vin) og 20 år (brennevin)","20 år for alt"],a:1,exp:"I Norge er det aldersgrense på 18 år for kjøp av alkohol med opp til 22% alkohol, og 20 år for sterkere alkohol (brennevin)."},en:{q:"What is the minimum age to buy alcohol in Norway?",opts:["16","18 (beer/wine) and 20 (spirits)","20 for everything"],a:1,exp:"In Norway the minimum age is 18 for purchasing alcohol up to 22% alcohol content, and 20 for stronger spirits."}},
+  {cat:"culture",no:{q:"Hva er «Syttende mai-toget»?",opts:["En militærparade","Et barnetog der skoler og korps marsjerer","En politisk demonstrasjon"],a:1,exp:"17. mai-toget er et barnetog der skoler og korpsmusikanter marsjerer gjennom gatene. Det er en av de viktigste tradisjonene på nasjonaldagen."},en:{q:"What is the 'Syttende mai-toget' (17 May parade)?",opts:["A military parade","A children's parade where schools and bands march","A political demonstration"],a:1,exp:"The 17 May parade is a children's parade where schools and marching bands march through the streets. It is one of the most important traditions on the national day."}},
+  {cat:"government",no:{q:"Hva er «offentlighet»?",opts:["En offentlig festival","Prinsippet om at offentlige dokumenter er tilgjengelige for alle","En statsborgerlig plikt"],a:1,exp:"Offentlighetsprinsippet innebærer at alle offentlige dokumenter og møteprotokoller i prinsippet er tilgjengelige for alle borgere, med visse unntak."},en:{q:"What is 'offentlighet' (public access to documents)?",opts:["A public festival","The principle that public documents are accessible to everyone","A civic duty"],a:1,exp:"The principle of public access means that all public documents and meeting minutes are in principle accessible to all citizens, with certain exceptions."}},
+  {cat:"rights",no:{q:"Hva er «likestilling»?",opts:["Lik lønn for alle uansett yrke","Lik behandling og rettigheter uavhengig av kjønn","Lik skattesats for alle"],a:1,exp:"Likestilling handler om at kvinner og menn skal ha like rettigheter og muligheter i samfunnet. Det reguleres bl.a. av likestillings- og diskrimineringsloven."},en:{q:"What is 'likestilling' (gender equality)?",opts:["Equal pay for all regardless of profession","Equal treatment and rights regardless of gender","Equal tax rates for everyone"],a:1,exp:"Gender equality means that women and men should have equal rights and opportunities in society. It is regulated by, among others, the Equality and Anti-Discrimination Act."}},
+  {cat:"society",no:{q:"Hva er «Utlendingsdirektoratet» (UDI)?",opts:["En politietat","Den statlige etaten som behandler søknader om oppholds- og arbeidstillatelse","En kommunal integreringsetat"],a:1,exp:"UDI (Utlendingsdirektoratet) er den sentrale statlige etaten for innvandrings- og flyktningpolitikk i Norge, og behandler søknader om visum, oppholdstillatelse og statsborgerskap."},en:{q:"What is UDI (the Norwegian Directorate of Immigration)?",opts:["A police agency","The state agency processing residence and work permit applications","A municipal integration agency"],a:1,exp:"UDI is the central government agency for immigration and refugee policy in Norway, processing applications for visas, residence permits and citizenship."}},
+  {cat:"culture",no:{q:"Hva er «Nationaltheatret»?",opts:["Et norsk museum","Norges nasjonalscene for teater i Oslo","En norsk kinoorganisasjon"],a:1,exp:"Nationaltheatret er Norges nasjonalscene for teater, etablert i Oslo i 1899. Det er kjent for å fremføre klassisk norsk og internasjonalt drama."},en:{q:"What is 'Nationaltheatret' (the National Theatre)?",opts:["A Norwegian museum","Norway's national stage for theatre in Oslo","A Norwegian cinema organisation"],a:1,exp:"The National Theatre is Norway's national stage for theatre, established in Oslo in 1899. It is known for performing classical Norwegian and international drama."}},
+  {cat:"geography",no:{q:"Hva heter elven som renner gjennom Oslo?",opts:["Drammenselva","Akerselva","Glomma"],a:1,exp:"Akerselva renner gjennom Oslo fra Maridalsvannet til Oslofjorden og er kjent for sitt historiske industrilandskap og grøntområder."},en:{q:"What is the river that runs through Oslo called?",opts:["Drammenselva","Akerselva","Glomma"],a:1,exp:"The Akerselva runs through Oslo from Maridalsvannet to the Oslofjord and is known for its historical industrial landscape and green areas."}},
+  {cat:"history",no:{q:"Hva er Fram?",opts:["Et norsk kampfly","Et norsk polarskip brukt av Nansen og Amundsen","En norsk ubåt"],a:1,exp:"Fram er det norske polarskipet som ble brukt av bl.a. Fridtjof Nansen og Roald Amundsen på arktiske og antarktiske ekspedisjoner. Skipet er nå utstilt på Frammuseet i Oslo."},en:{q:"What is the Fram?",opts:["A Norwegian fighter jet","A Norwegian polar ship used by Nansen and Amundsen","A Norwegian submarine"],a:1,exp:"The Fram is the Norwegian polar ship used by among others Fridtjof Nansen and Roald Amundsen on Arctic and Antarctic expeditions. The ship is now exhibited at the Fram Museum in Oslo."}},
+  {cat:"society",no:{q:"Hva er «Likestillings- og diskrimineringsombudet»?",opts:["En domstol for diskrimineringssaker","Et uavhengig organ som fremmer likestilling og bekjemper diskriminering","Et politisk parti for minoriteter"],a:1,exp:"Likestillings- og diskrimineringsombudet (LDO) er et uavhengig offentlig organ som jobber for likestilling og mot diskriminering, og veileder enkeltpersoner og arbeidsgivere."},en:{q:"What is the 'Likestillings- og diskrimineringsombudet' (Equality and Anti-Discrimination Ombud)?",opts:["A court for discrimination cases","An independent body that promotes equality and combats discrimination","A political party for minorities"],a:1,exp:"The Equality and Anti-Discrimination Ombud (LDO) is an independent public body working for equality and against discrimination, advising individuals and employers."}},
+  {cat:"government",no:{q:"Hva er «Regjeringen»?",opts:["Stortinget","Den utøvende makt ledet av statsministeren","Politiet og rettsvesenet"],a:1,exp:"Regjeringen er den utøvende makten i Norge, ledet av statsministeren. Den gjennomfører Stortingets vedtak og administrerer landet."},en:{q:"What is 'Regjeringen' (the Government)?",opts:["The Storting","The executive power led by the Prime Minister","The police and justice system"],a:1,exp:"The Government is the executive power in Norway, led by the Prime Minister. It implements the Storting's decisions and administers the country."}},
+  {cat:"history",no:{q:"Hvem var Roald Amundsen?",opts:["En norsk statsminister","Mannen som ledet den første ekspedisjonen til Sydpolen","En norsk polarforsker som ledet Fram-ekspedisjonen"],a:1,exp:"Roald Amundsen (1872–1928) var en norsk polfarer som som den første nådde Sydpolen den 14. desember 1911, foran den britiske ekspedisjonen til Robert Falcon Scott."},en:{q:"Who was Roald Amundsen?",opts:["A Norwegian Prime Minister","The man who led the first expedition to the South Pole","A Norwegian polar explorer who led the Fram expedition"],a:1,exp:"Roald Amundsen (1872–1928) was a Norwegian explorer who was the first to reach the South Pole on 14 December 1911, ahead of the British expedition of Robert Falcon Scott."}},
+  {cat:"culture",no:{q:"Hva er «Ibsen-prisen»?",opts:["En pris for norsk litteratur","En internasjonal teaterprisen oppkalt etter Henrik Ibsen","En pris for dramastudenter"],a:1,exp:"Ibsen-prisen (International Ibsen Award) er en internasjonal pris som deles ut annethvert år til teaterkunstnere som har gitt viktige bidrag til teatret."},en:{q:"What is the 'Ibsen-prisen' (International Ibsen Award)?",opts:["A prize for Norwegian literature","An international theatre prize named after Henrik Ibsen","A prize for drama students"],a:1,exp:"The International Ibsen Award is an international prize awarded every two years to theatre artists who have made important contributions to theatre."}},
+  {cat:"world",no:{q:"Hva er Norges relasjon til Arktis?",opts:["Norge har ingen interesser i Arktis","Norge er en stor arktisk nasjon med suverenitet over Svalbard","Norge deler arktisk territorium med Russland"],a:1,exp:"Norge er en ledende arktisk nasjon med suverenitet over Svalbard og Jan Mayen. Norge grenser til Polhavet og er aktivt engasjert i arktisk politikk og forskning."},en:{q:"What is Norway's relationship to the Arctic?",opts:["Norway has no interests in the Arctic","Norway is a major Arctic nation with sovereignty over Svalbard","Norway shares Arctic territory with Russia"],a:1,exp:"Norway is a leading Arctic nation with sovereignty over Svalbard and Jan Mayen. Norway borders the Arctic Ocean and is actively engaged in Arctic politics and research."}},
+];
+
+// --- STATE ---
+let lang = 'no';
+let mode = null; // 'quiz' or 'menu'
+let quizQ = [];
+let current = 0;
+let selected = null;
+let confirmed = false;
+let score = 0;
+let answers = [];
+let quizSize = 10;
+
+const STRINGS = {
+  no: {
+    headerSub: "Norsk Statsborgerskap · Øvingsprøve",
+    startTitle: "Velg antall spørsmål",
+    startDesc: `Øvingsprøven inneholder ${ALL_QUESTIONS.length} spørsmål om norsk samfunn, historie, demokrati og kultur. Velg antall spørsmål og start øvingen!`,
+    q10: "10 spørsmål", q10sub: "Rask økt · ca. 5 min",
+    q20: "20 spørsmål", q20sub: "Standard økt · ca. 10 min",
+    q36: "36 spørsmål", q36sub: "Full prøvelengde · ca. 20 min",
+    q50: "50 spørsmål", q50sub: "Intensivøkt · ca. 30 min",
+    totalQ: `${ALL_QUESTIONS.length} spørsmål i basen`,
+    passReq: "75% kreves for å bestå",
+    qOf: "Spørsmål",
+    of: "av",
+    correct: "riktige",
+    confirm: "Bekreft svar",
+    next: "Neste spørsmål →",
+    results: "Se resultater →",
+    passed: "Bestått ✓",
+    failed: "Ikke bestått ✗",
+    passMsg: "Bra jobbet! Du ville bestått den ekte prøven.",
+    failMsg: "Du trenger 75% for å bestå. Øv mer og prøv igjen!",
+    review: "Gjennomgang",
+    correctAns: "Riktig svar:",
+    restart: "Prøv igjen →",
+    catNames: {history:"Historie",government:"Demokrati",royals:"Kongefamilien",geography:"Geografi",society:"Samfunn",rights:"Rettigheter",culture:"Kultur",world:"Norge og verden",everyday:"Hverdagsliv",health:"Helse",sami:"Samene","},
+  },
+  en: {
+    headerSub: "Norwegian Citizenship · Practice Test",
+    startTitle: "Choose number of questions",
+    startDesc: `The practice test contains ${ALL_QUESTIONS.length} questions about Norwegian society, history, democracy and culture. Choose the number of questions and start practising!`,
+    q10: "10 questions", q10sub: "Quick session · ~5 min",
+    q20: "20 questions", q20sub: "Standard session · ~10 min",
+    q36: "36 questions", q36sub: "Full exam length · ~20 min",
+    q50: "50 questions", q50sub: "Intensive session · ~30 min",
+    totalQ: `${ALL_QUESTIONS.length} questions in the bank`,
+    passReq: "75% required to pass",
+    qOf: "Question",
+    of: "of",
+    correct: "correct",
+    confirm: "Confirm answer",
+    next: "Next question →",
+    results: "See results →",
+    passed: "Passed ✓",
+    failed: "Not passed ✗",
+    passMsg: "Well done! You would have passed the real test.",
+    failMsg: "You need 75% to pass. Keep practising and try again!",
+    review: "Review",
+    correctAns: "Correct answer:",
+    restart: "Try again →",
+    catNames: {history:"History",government:"Democracy",royals:"Royal Family",geography:"Geography",society:"Society",rights:"Rights",culture:"Culture",world:"Norway & the World",everyday:"Everyday Life",health:"Health",sami:"The Sami","},
+  }
+};
+
+function t(key) { return STRINGS[lang][key] || key; }
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function render() {
+  const screen = document.getElementById('screen');
+  document.getElementById('header-sub').textContent = t('headerSub');
+  const noLbl = document.getElementById('lang-no-lbl');
+  const enLbl = document.getElementById('lang-en-lbl');
+  noLbl.style.color = lang === 'no' ? '#c8d8f0' : '#4a5a7a';
+  enLbl.style.color = lang === 'en' ? '#c8d8f0' : '#4a5a7a';
+
+  if (!mode) {
+    renderMenu(screen);
+  } else if (mode === 'quiz') {
+    renderQuiz(screen);
+  }
+}
+
+function renderMenu(screen) {
+  const s = STRINGS[lang];
+  screen.innerHTML = `
+    <div class="menu-card">
+      <h2 style="font-size:18px;color:#e8dfc8;margin-bottom:10px;">${s.startTitle}</h2>
+      <p class="menu-desc">${s.startDesc}</p>
+      <div class="menu-options">
+        <button class="menu-btn" onclick="startQuiz(10)"><span class="mb-title">${s.q10}</span><span class="mb-sub">${s.q10sub}</span></button>
+        <button class="menu-btn highlight" onclick="startQuiz(20)"><span class="mb-title">${s.q20}</span><span class="mb-sub">${s.q20sub}</span></button>
+        <button class="menu-btn" onclick="startQuiz(36)"><span class="mb-title">${s.q36}</span><span class="mb-sub">${s.q36sub}</span></button>
+        <button class="menu-btn" onclick="startQuiz(50)"><span class="mb-title">${s.q50}</span><span class="mb-sub">${s.q50sub}</span></button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-item"><span class="stat-num">${ALL_QUESTIONS.length}</span><span class="stat-lbl">${lang==='no'?'Spørsmål':'Questions'}</span></div>
+        <div class="stat-item"><span class="stat-num">10</span><span class="stat-lbl">${lang==='no'?'Kategorier':'Categories'}</span></div>
+        <div class="stat-item"><span class="stat-num">75%</span><span class="stat-lbl">${lang==='no'?'Bestått':'Pass mark'}</span></div>
+      </div>
+    </div>`;
+}
+
+function renderQuiz(screen) {
+  const s = STRINGS[lang];
+  if (current >= quizQ.length) { renderResults(screen); return; }
+  const item = quizQ[current];
+  const q = item[lang];
+  const catName = t('catNames')[item.cat] || item.cat;
+  const progress = (current / quizQ.length) * 100;
+
+  let optionsHTML = q.opts.map((opt, i) => {
+    let cls = 'option-btn';
+    let icon = '';
+    if (confirmed) {
+      if (i === q.a) { cls += ' correct'; icon = '<span class="opt-icon" style="color:#2d8a50">✓</span>'; }
+      else if (i === selected && i !== q.a) { cls += ' wrong'; icon = '<span class="opt-icon" style="color:#c0392b">✗</span>'; }
+      else cls += ' dim';
+    } else if (selected === i) { cls += ' selected'; }
+    return `<button class="${cls}" onclick="selectOpt(${i})"><span class="opt-letter">${['A','B','C'][i]}</span><span class="opt-text">${opt}</span>${icon}</button>`;
+  }).join('');
+
+  let explHTML = '';
+  if (confirmed) {
+    const cls = selected === q.a ? 'good' : 'bad';
+    explHTML = `<div class="explanation ${cls}"><span class="expl-icon">${selected===q.a?'💡':'📖'}</span>${q.exp}</div>`;
+  }
+
+  const btnLabel = confirmed ? (current+1>=quizQ.length ? s.results : s.next) : s.confirm;
+  const btnDisabled = (!confirmed && selected===null) ? 'disabled' : '';
+
+  screen.innerHTML = `
+    <div class="card" id="qcard">
+      <div class="progress-row">
+        <span class="progress-label">${s.qOf} ${current+1} ${s.of} ${quizQ.length}</span>
+        <span class="progress-label">${score} ${s.correct}</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
+      <div class="category-tag">${catName}</div>
+      <p class="question-text">${q.q}</p>
+      <div class="options">${optionsHTML}</div>
+      ${explHTML}
+      <div class="btn-row"><button class="btn" onclick="handleAction()" ${btnDisabled}>${btnLabel}</button></div>
+    </div>`;
+}
+
+function renderResults(screen) {
+  const s = STRINGS[lang];
+  const pct = Math.round((score / quizQ.length) * 100);
+  const passed = pct >= 75;
+
+  let reviewHTML = answers.map((a,i) => {
+    const q = quizQ[i][lang];
+    return `<div class="review-item ${a.correct?'ok':'ko'}">
+      <div class="review-q"><span class="review-icon" style="color:${a.correct?'#2d8a50':'#c0392b'}">${a.correct?'✓':'✗'}</span>${q.q}</div>
+      ${!a.correct ? `<div class="review-correct">${s.correctAns} <strong>${q.opts[q.a]}</strong></div>` : ''}
+      <div class="review-expl">${q.exp}</div>
+    </div>`;
+  }).join('');
+
+  screen.innerHTML = `
+    <div class="card">
+      <div class="result-top">
+        <div class="score-badge ${passed?'pass':'fail'}">
+          <span class="score-pct">${pct}%</span>
+          <span class="score-lbl">${passed?s.passed:s.failed}</span>
+        </div>
+        <div class="score-detail"><span style="font-size:24px;color:#e8dfc8">${score}</span><span class="score-of"> / ${quizQ.length}</span></div>
+        <p class="result-note">${passed?s.passMsg:s.failMsg}</p>
+      </div>
+      <p class="review-title">${s.review}</p>
+      <div class="review-list">${reviewHTML}</div>
+      <button class="restart-btn" onclick="goMenu()">${s.restart}</button>
+    </div>`;
+}
+
+// --- ACTIONS ---
+function startQuiz(n) {
+  quizSize = n;
+  quizQ = shuffle(ALL_QUESTIONS).slice(0, n);
+  current = 0; selected = null; confirmed = false; score = 0; answers = [];
+  mode = 'quiz';
+  render();
+}
+
+function selectOpt(i) {
+  if (confirmed) return;
+  selected = i;
+  render();
+}
+
+function handleAction() {
+  if (!confirmed) {
+    if (selected === null) return;
+    const q = quizQ[current][lang];
+    const correct = selected === q.a;
+    if (correct) score++;
+    answers.push({correct, selected});
+    confirmed = true;
+    render();
+  } else {
+    const card = document.getElementById('qcard');
+    if (card) { card.classList.add('fade'); setTimeout(() => { advance(); }, 200); }
+    else advance();
+  }
+}
+
+function advance() {
+  current++;
+  selected = null;
+  confirmed = false;
+  if (current >= quizQ.length) { mode = 'results'; }
+  render();
+}
+
+function goMenu() {
+  mode = null;
+  render();
+}
+
+// --- LANG TOGGLE ---
+document.getElementById('lang-toggle').addEventListener('change', function() {
+  lang = this.checked ? 'en' : 'no';
+  render();
+});
+
+// --- INIT ---
+render();
+
+// Register service worker for PWA/offline support
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
