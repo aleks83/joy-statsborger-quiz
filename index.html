@@ -338,7 +338,7 @@ const STRINGS = {
     review: "Gjennomgang",
     correctAns: "Riktig svar:",
     restart: "Prøv igjen →",
-    catNames: {history:"Historie",government:"Demokrati",royals:"Kongefamilien",geography:"Geografi",society:"Samfunn",rights:"Rettigheter",culture:"Kultur",world:"Norge og verden",everyday:"Hverdagsliv",health:"Helse",sami:"Samene","},
+    catNames: {history:"Historie",government:"Demokrati",royals:"Kongefamilien",geography:"Geografi",society:"Samfunn",rights:"Rettigheter",culture:"Kultur",world:"Norge og verden",everyday:"Hverdagsliv",health:"Helse",sami:"Samene"},
   },
   en: {
     headerSub: "Norwegian Citizenship · Practice Test",
@@ -363,7 +363,7 @@ const STRINGS = {
     review: "Review",
     correctAns: "Correct answer:",
     restart: "Try again →",
-    catNames: {history:"History",government:"Democracy",royals:"Royal Family",geography:"Geography",society:"Society",rights:"Rights",culture:"Culture",world:"Norway & the World",everyday:"Everyday Life",health:"Health",sami:"The Sami","},
+    catNames: {history:"History",government:"Democracy",royals:"Royal Family",geography:"Geography",society:"Society",rights:"Rights",culture:"Culture",world:"Norway & the World",everyday:"Everyday Life",health:"Health",sami:"The Sami"},
   }
 };
 
@@ -428,7 +428,7 @@ function renderQuiz(screen) {
   let explHTML = '';
   if (confirmed) {
     const cls = selected === q.a ? 'good' : 'bad';
-    explHTML = `<div class="explanation ${cls}"><span class="expl-icon">${selected===q.a?'💡':'📖'}</span>${q.exp}</div>`;
+    explHTML = `<div class="explanation ${cls}"><span class="expl-icon">${selected===q.a?'&#128161;':'&#128214;'}</span>${q.exp}</div>`;
   }
 
   const btnLabel = confirmed ? (current+1>=quizQ.length ? s.results : s.next) : s.confirm;
@@ -535,7 +535,7 @@ render();
 // Register service worker for PWA/offline support
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
 }
 </script>
