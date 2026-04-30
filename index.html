@@ -371,6 +371,16 @@ function t(key) { return STRINGS[lang][key] || key; }
 
 function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
 
+function shuffleOptions(item) {
+  const order = shuffle([...item.no.opts.keys()]);
+  const newA = order.indexOf(item.no.a);
+  return {
+    ...item,
+    no: {...item.no, opts: order.map(i => item.no.opts[i]), a: newA},
+    en: {...item.en, opts: order.map(i => item.en.opts[i]), a: newA},
+  };
+}
+
 function render() {
   const screen = document.getElementById('screen');
   document.getElementById('header-sub').textContent = t('headerSub');
@@ -383,6 +393,8 @@ function render() {
     renderMenu(screen);
   } else if (mode === 'quiz') {
     renderQuiz(screen);
+  } else if (mode === 'results') {
+    renderResults(screen);
   }
 }
 
@@ -482,7 +494,7 @@ function renderResults(screen) {
 // --- ACTIONS ---
 function startQuiz(n) {
   quizSize = n;
-  quizQ = shuffle(ALL_QUESTIONS).slice(0, n);
+  quizQ = shuffle(ALL_QUESTIONS).slice(0, n).map(shuffleOptions);
   current = 0; selected = null; confirmed = false; score = 0; answers = [];
   mode = 'quiz';
   render();
