@@ -99,7 +99,12 @@
 
   /* MENU */
   .menu-card{background:#111827;border:1px solid #1e2a40;border-radius:16px;padding:28px 22px;box-shadow:0 20px 60px rgba(0,0,0,.5);text-align:center;}
-  .menu-desc{font-size:13px;color:#4a5a7a;font-family:sans-serif;line-height:1.7;margin-bottom:24px;}
+  .menu-desc{font-size:13px;color:#4a5a7a;font-family:sans-serif;line-height:1.7;margin-bottom:20px;}
+  .bank-label{font-size:11px;color:#3a5a7a;letter-spacing:1.5px;text-transform:uppercase;font-family:sans-serif;margin-bottom:8px;text-align:left;}
+  .bank-row{display:flex;gap:4px;background:#0d1525;border:1px solid #1e2a40;border-radius:10px;padding:4px;margin-bottom:18px;}
+  .bank-btn{flex:1;padding:9px 6px;background:transparent;border:none;color:#6a7a9a;font-size:12px;font-family:sans-serif;cursor:pointer;border-radius:7px;transition:all .15s;-webkit-appearance:none;letter-spacing:.3px;}
+  .bank-btn.active{background:#0d2040;color:#c8d8f0;}
+  .bank-btn:active{transform:scale(.97);}
   .menu-options{display:flex;flex-direction:column;gap:12px;margin-bottom:18px;}
   .menu-btn{padding:15px 20px;border-radius:10px;border:1px solid #2a3a5a;background:#0d1525;color:#b0c0d8;font-size:14px;font-family:sans-serif;cursor:pointer;transition:all .15s;-webkit-appearance:none;}
   .menu-btn:active{transform:scale(.98);}
@@ -303,6 +308,69 @@ const ALL_QUESTIONS = [
   {cat:"world",no:{q:"Hva er Norges relasjon til Arktis?",opts:["Norge har ingen interesser i Arktis","Norge er en stor arktisk nasjon med suverenitet over Svalbard","Norge deler arktisk territorium med Russland"],a:1,exp:"Norge er en ledende arktisk nasjon med suverenitet over Svalbard og Jan Mayen. Norge grenser til Polhavet og er aktivt engasjert i arktisk politikk og forskning."},en:{q:"What is Norway's relationship to the Arctic?",opts:["Norway has no interests in the Arctic","Norway is a major Arctic nation with sovereignty over Svalbard","Norway shares Arctic territory with Russia"],a:1,exp:"Norway is a leading Arctic nation with sovereignty over Svalbard and Jan Mayen. Norway borders the Arctic Ocean and is actively engaged in Arctic politics and research."}},
 ];
 
+// Questions from the "Samfunnskunnskap" study guide PDF
+const PDF_QUESTIONS = [
+  {cat:"society",no:{q:"Hvor mange offisielle skriftspråk er det i Norge?",opts:["Ett","To","Tre"],a:1,exp:"Norge har to offisielle skriftspråk: bokmål og nynorsk. I tillegg er samisk anerkjent som urfolksspråk."},en:{q:"How many official written languages are there in Norway?",opts:["One","Two","Three"],a:1,exp:"Norway has two official written languages: Bokmål and Nynorsk. Sami is also recognised as an indigenous language."}},
+  {cat:"geography",no:{q:"Hva heter den lengste elva i Norge?",opts:["Drammenselva","Glomma","Otra"],a:1,exp:"Glomma er Norges lengste elv (ca. 621 km) og renner fra Aursunden til Fredrikstad."},en:{q:"What is the longest river in Norway?",opts:["Drammenselva","Glomma","Otra"],a:1,exp:"Glomma is Norway's longest river at about 621 km, flowing from Aursunden to Fredrikstad."}},
+  {cat:"society",no:{q:"Omtrent hvor mange innbyggere har Norge?",opts:["4,2 millioner","5,6 millioner","7,1 millioner"],a:1,exp:"Norge har omtrent 5,6 millioner innbyggere."},en:{q:"Approximately how many people live in Norway?",opts:["4.2 million","5.6 million","7.1 million"],a:1,exp:"Norway has about 5.6 million inhabitants."}},
+  {cat:"geography",no:{q:"Hvilke land grenser til Norge?",opts:["Sverige og Danmark","Finland, Russland og Sverige","Sverige, Finland og Danmark"],a:1,exp:"Norge grenser til Sverige (lengst grense), Finland og Russland."},en:{q:"Which countries border Norway?",opts:["Sweden and Denmark","Finland, Russia and Sweden","Sweden, Finland and Denmark"],a:1,exp:"Norway shares borders with Sweden (longest border), Finland and Russia."}},
+  {cat:"geography",no:{q:"Hva er de fire største byene i Norge?",opts:["Oslo, Bergen, Tromsø og Bodø","Bergen, Oslo, Trondheim og Stavanger","Oslo, Bergen, Stavanger og Drammen"],a:1,exp:"De fire største byene er Oslo, Bergen, Trondheim og Stavanger."},en:{q:"What are the four largest cities in Norway?",opts:["Oslo, Bergen, Tromsø and Bodø","Bergen, Oslo, Trondheim and Stavanger","Oslo, Bergen, Stavanger and Drammen"],a:1,exp:"The four largest cities are Oslo, Bergen, Trondheim and Stavanger."}},
+  {cat:"government",no:{q:"Hvor mange fylker er Norge delt inn i?",opts:["11","15","19"],a:1,exp:"Norge er delt inn i 15 fylker etter at fylkesreformen delvis ble reversert i 2024."},en:{q:"How many counties (fylker) is Norway divided into?",opts:["11","15","19"],a:1,exp:"Norway is divided into 15 counties after the 2024 partial reversal of the county reform."}},
+  {cat:"government",no:{q:"Hvor mange kommuner er Norge delt inn i?",opts:["256","357","428"],a:1,exp:"Norge har 357 kommuner."},en:{q:"How many municipalities is Norway divided into?",opts:["256","357","428"],a:1,exp:"Norway has 357 municipalities."}},
+  {cat:"geography",no:{q:"Hvor stor del av Norges areal er dekket av skog?",opts:["25 %","37 %","50 %"],a:1,exp:"Omtrent 37 % av Norges areal er dekket av skog."},en:{q:"How much of Norway's land area is covered by forest?",opts:["25%","37%","50%"],a:1,exp:"About 37% of Norway's land area is covered by forest."}},
+  {cat:"geography",no:{q:"Hvor stor del av Norge er jordbruksareal?",opts:["3 %","12 %","25 %"],a:0,exp:"Bare omtrent 3 % av Norges areal er jordbruksareal – terrenget gjør det meste uegnet til dyrking."},en:{q:"How much of Norway is agricultural land?",opts:["3%","12%","25%"],a:0,exp:"Only about 3% of Norway's land area is agricultural – the terrain makes most of it unsuitable for farming."}},
+  {cat:"sami",no:{q:"Hva markeres 6. februar?",opts:["Norges nasjonaldag","Samenes nasjonaldag","Frigjøringsdagen"],a:1,exp:"6. februar er samenes nasjonaldag, til minne om det første samiske landsmøtet i Trondheim i 1917."},en:{q:"What is marked on 6 February?",opts:["Norway's national day","Sami National Day","Liberation Day"],a:1,exp:"6 February is the Sami National Day, commemorating the first Sami congress in Trondheim in 1917."}},
+  {cat:"rights",no:{q:"Siden hvilket år har Norge feiret den internasjonale kvinnedagen?",opts:["1913","1958","1972"],a:2,exp:"Norge har feiret den internasjonale kvinnedagen siden 1972."},en:{q:"Since which year has Norway celebrated International Women's Day?",opts:["1913","1958","1972"],a:2,exp:"Norway has celebrated International Women's Day since 1972."}},
+  {cat:"culture",no:{q:"Når er den internasjonale kvinnedagen?",opts:["8. mars","1. mai","17. mai"],a:0,exp:"Den internasjonale kvinnedagen markeres 8. mars hvert år."},en:{q:"When is International Women's Day?",opts:["8 March","1 May","17 May"],a:0,exp:"International Women's Day is marked on 8 March every year."}},
+  {cat:"culture",no:{q:"Når feires påsken i Norge?",opts:["I januar","Mellom mars og april","I desember"],a:1,exp:"Påsken faller mellom mars og april. Datoen varierer etter månefaser."},en:{q:"When is Easter celebrated in Norway?",opts:["In January","Between March and April","In December"],a:1,exp:"Easter falls between March and April. The date varies according to lunar phases."}},
+  {cat:"society",no:{q:"Hva betyr det at det norske samfunnet er sekulært?",opts:["Alle innbyggere må følge én religion","Religion er skilt fra staten og styrer ikke politikken","Det er forbudt å være religiøs"],a:1,exp:"Et sekulært samfunn betyr at religion er skilt fra staten og ikke styrer politikken."},en:{q:"What does it mean that Norwegian society is secular?",opts:["All citizens must follow one religion","Religion is separated from the state and does not govern politics","Being religious is prohibited"],a:1,exp:"A secular society means religion is separated from the state and does not govern politics."}},
+  {cat:"society",no:{q:"Hva var statsreligionen i Norge fram til 2012?",opts:["Katolisismen","Protestantismen","Islam"],a:1,exp:"Den evangelisk-lutherske protestantismen var Norges statsreligion fram til 2012, da Den norske kirke ble skilt fra staten."},en:{q:"What was Norway's state religion until 2012?",opts:["Catholicism","Protestantism","Islam"],a:1,exp:"Evangelical Lutheran Protestantism was Norway's state religion until 2012, when the Church of Norway was separated from the state."}},
+  {cat:"society",no:{q:"Hva er en av de viktigste verdiene i det norske samfunnet?",opts:["Hierarki","Likestilling","Tradisjonelle kjønnsroller"],a:1,exp:"Likestilling – mellom kjønn og mennesker – er en grunnleggende verdi i Norge."},en:{q:"What is one of the most important values in Norwegian society?",opts:["Hierarchy","Equality","Traditional gender roles"],a:1,exp:"Equality – between genders and people – is a fundamental value in Norway."}},
+  {cat:"rights",no:{q:"Hva forbyr paragraf 185 i straffeloven fra 2005?",opts:["Tyveri","Rasisme og hatefulle ytringer","Trafikkforseelser"],a:1,exp:"§ 185 forbyr hatefulle ytringer basert på blant annet hudfarge, etnisk bakgrunn, religion, seksualitet og funksjonsevne."},en:{q:"What does §185 of the 2005 Penal Code prohibit?",opts:["Theft","Racism and hate speech","Traffic violations"],a:1,exp:"§185 prohibits hate speech based on, among other things, skin colour, ethnicity, religion, sexuality and disability."}},
+  {cat:"sami",no:{q:"Er samer, skogfinner og romfolk minoritet eller majoritet i Norge?",opts:["Majoritet","Minoritet","Det varierer fra fylke til fylke"],a:1,exp:"Samer er anerkjent som urfolk, mens skogfinner og romfolk er nasjonale minoriteter."},en:{q:"Are the Sami, Forest Finns and Roma a minority or majority in Norway?",opts:["Majority","Minority","It varies by county"],a:1,exp:"The Sami are recognised as an indigenous people, while Forest Finns and Roma are national minorities."}},
+  {cat:"history",no:{q:"Hva skjedde i Norge i 2014?",opts:["Norge meldte seg ut av EU","200-årsjubileet for grunnloven ble feiret","Et nytt fylke ble innført"],a:1,exp:"I 2014 feiret Norge 200-årsjubileet for grunnloven av 1814."},en:{q:"What happened in Norway in 2014?",opts:["Norway left the EU","The 200th anniversary of the Constitution was celebrated","A new county was introduced"],a:1,exp:"In 2014, Norway celebrated the 200th anniversary of the 1814 Constitution."}},
+  {cat:"history",no:{q:"I hvilken tidsperiode ble klimaet i Norge omtrent slik vi kjenner det i dag?",opts:["Bronsealderen","Jernalderen","Vikingtiden"],a:1,exp:"Klimaet i Norge ble omtrent slik vi kjenner det i dag i jernalderen (ca. 500 f.Kr.), da det ble kaldere og våtere."},en:{q:"In which period did Norway's climate become similar to today's?",opts:["The Bronze Age","The Iron Age","The Viking Age"],a:1,exp:"Norway's climate became roughly as we know it today during the Iron Age (around 500 BCE), when it grew colder and wetter."}},
+  {cat:"history",no:{q:"Når var vikingtiden?",opts:["500–800","Fra ca. år 800 til 1050","1300–1500"],a:1,exp:"Vikingtiden varte fra ca. år 800 til 1050."},en:{q:"When was the Viking Age?",opts:["500–800","From about 800 to 1050","1300–1500"],a:1,exp:"The Viking Age lasted from about 800 to 1050."}},
+  {cat:"history",no:{q:"I hvilket århundre kom kristendommen til Norge?",opts:["På 500-tallet","På 1000-tallet","På 1500-tallet"],a:1,exp:"Kristendommen kom til Norge på 1000-tallet, særlig knyttet til kong Olav Haraldsson (Olav den hellige)."},en:{q:"In which century did Christianity come to Norway?",opts:["The 6th century","The 11th century","The 16th century"],a:1,exp:"Christianity came to Norway in the 11th century, particularly through King Olav Haraldsson (Saint Olav)."}},
+  {cat:"history",no:{q:"Når fikk Norge sin egen grunnlov?",opts:["17. mai 1814","7. juni 1905","8. mai 1945"],a:0,exp:"Norges grunnlov ble underskrevet på Eidsvoll 17. mai 1814."},en:{q:"When did Norway get its own Constitution?",opts:["17 May 1814","7 June 1905","8 May 1945"],a:0,exp:"Norway's Constitution was signed at Eidsvoll on 17 May 1814."}},
+  {cat:"history",no:{q:"Fra hvilket år til hvilket år var Norge i union med Sverige?",opts:["1380–1814","1814–1905","1905–1940"],a:1,exp:"Norge var i union med Sverige fra 1814 til 1905, da unionen ble fredelig oppløst."},en:{q:"In which years was Norway in union with Sweden?",opts:["1380–1814","1814–1905","1905–1940"],a:1,exp:"Norway was in union with Sweden from 1814 to 1905, when the union was peacefully dissolved."}},
+  {cat:"history",no:{q:"Hva skjedde i Norge i 1940?",opts:["Norge ble selvstendig","Norge ble okkupert av Tyskland","Norge meldte seg inn i NATO"],a:1,exp:"Tyskland invaderte og okkuperte Norge fra 9. april 1940 til mai 1945."},en:{q:"What happened in Norway in 1940?",opts:["Norway became independent","Norway was occupied by Germany","Norway joined NATO"],a:1,exp:"Germany invaded and occupied Norway from 9 April 1940 until May 1945."}},
+  {cat:"rights",no:{q:"Når fikk kvinner i Norge rett til selvbestemt abort?",opts:["1913","1978","1990"],a:1,exp:"Loven om selvbestemt abort ble vedtatt i 1978."},en:{q:"When did women in Norway gain the right to self-determined abortion?",opts:["1913","1978","1990"],a:1,exp:"The law on self-determined abortion was passed in 1978."}},
+  {cat:"history",no:{q:"Når ble det funnet olje i Nordsjøen?",opts:["1920-årene","Slutten av 1960-årene","1980-årene"],a:1,exp:"Olje ble funnet i Nordsjøen på slutten av 1960-årene; Ekofisk-feltet ble oppdaget i 1969."},en:{q:"When was oil found in the North Sea?",opts:["The 1920s","The late 1960s","The 1980s"],a:1,exp:"Oil was discovered in the North Sea in the late 1960s; the Ekofisk field was found in 1969."}},
+  {cat:"history",no:{q:"Hvor mange menn skrev Norges grunnlov i 1814?",opts:["78","112","200"],a:1,exp:"112 menn (Eidsvollsmennene) møttes på Eidsvoll og skrev grunnloven i 1814."},en:{q:"How many men wrote Norway's Constitution in 1814?",opts:["78","112","200"],a:1,exp:"112 men (the 'Eidsvoll men') met at Eidsvoll and wrote the Constitution in 1814."}},
+  {cat:"government",no:{q:"Hvor ofte er det stortingsvalg i Norge?",opts:["Hvert 2. år","Hvert 4. år","Hvert 5. år"],a:1,exp:"Det er stortingsvalg hvert 4. år. Kommune- og fylkestingsvalg holdes også hvert 4. år, forskjøvet med 2 år."},en:{q:"How often are parliamentary elections held in Norway?",opts:["Every 2 years","Every 4 years","Every 5 years"],a:1,exp:"Parliamentary elections are held every 4 years. Municipal and county elections are also held every 4 years, offset by 2 years."}},
+  {cat:"government",no:{q:"Omtrent hvor mange registrerte politiske partier finnes det i Norge?",opts:["5","20","50"],a:1,exp:"Det er omtrent 20 registrerte politiske partier i Norge, men bare et fåtall er representert på Stortinget."},en:{q:"Approximately how many registered political parties are there in Norway?",opts:["5","20","50"],a:1,exp:"There are about 20 registered political parties in Norway, but only a few are represented in the Storting."}},
+  {cat:"rights",no:{q:"Når fikk kvinner i Norge full stemmerett?",opts:["1898","1913","1945"],a:1,exp:"Norske kvinner fikk full stemmerett i 1913 – Norge var et av de første landene i verden med dette."},en:{q:"When did women in Norway gain full voting rights?",opts:["1898","1913","1945"],a:1,exp:"Norwegian women gained full voting rights in 1913 – Norway was one of the first countries in the world to grant this."}},
+  {cat:"society",no:{q:"Etter olje og gass, hva er noen av Norges største eksportvarer?",opts:["Klær og biler","Fisk og metall","Trevarer og våpen"],a:1,exp:"Etter olje og gass er fisk (særlig laks) og metaller blant Norges viktigste eksportvarer."},en:{q:"After oil and gas, what are some of Norway's largest exports?",opts:["Clothing and cars","Fish and metals","Wood products and weapons"],a:1,exp:"After oil and gas, fish (especially salmon) and metals are among Norway's most important exports."}},
+  {cat:"society",no:{q:"Omtrent hvor mange barn blir født i Norge hvert år?",opts:["Under 20 000","Over 50 000","Over 100 000"],a:1,exp:"Det fødes over 50 000 barn i Norge hvert år."},en:{q:"Approximately how many children are born in Norway each year?",opts:["Under 20,000","Over 50,000","Over 100,000"],a:1,exp:"Over 50,000 children are born in Norway every year."}},
+  {cat:"rights",no:{q:"Hvor lenge varer introduksjonsprogrammet for nye innvandrere?",opts:["Maksimalt 6 måneder","Fra noen måneder til opptil 3 år","Alltid 5 år"],a:1,exp:"Introduksjonsprogrammet varer fra noen måneder opp til 3 år, avhengig av deltakerens behov og bakgrunn."},en:{q:"How long does the introduction programme for new immigrants last?",opts:["A maximum of 6 months","From a few months up to 3 years","Always 5 years"],a:1,exp:"The introduction programme lasts from a few months up to 3 years, depending on the participant's needs and background."}},
+  {cat:"government",no:{q:"Hvem vedtok integreringsloven for innvandrere?",opts:["Regjeringen","Stortinget","Kommunen"],a:1,exp:"Stortinget vedtar alle norske lover, inkludert integreringsloven."},en:{q:"Who passed the Integration Act for immigrants?",opts:["The Government","The Storting","The municipality"],a:1,exp:"The Storting passes all Norwegian laws, including the Integration Act."}},
+  {cat:"everyday",no:{q:"Hvor mange år er det obligatorisk skolegang i Norge?",opts:["7","10","13"],a:1,exp:"Grunnskolen i Norge er 10 år obligatorisk: 7 år barneskole og 3 år ungdomsskole."},en:{q:"How many years of schooling are compulsory in Norway?",opts:["7","10","13"],a:1,exp:"Compulsory schooling in Norway is 10 years: 7 years primary plus 3 years lower secondary."}},
+  {cat:"everyday",no:{q:"Når begynner barn på skolen i Norge?",opts:["Det året de fyller 5 år","Det året de fyller 6 år","Det året de fyller 7 år"],a:1,exp:"Barn begynner på skolen det året de fyller 6 år."},en:{q:"When do children start school in Norway?",opts:["The year they turn 5","The year they turn 6","The year they turn 7"],a:1,exp:"Children start school the year they turn 6."}},
+  {cat:"rights",no:{q:"Har personer mellom 16 og 26 år rett til videregående skole?",opts:["Ja","Nei","Bare opp til 18 år"],a:0,exp:"Alle mellom 16 og 26 år har rett til videregående opplæring i Norge."},en:{q:"Do people aged 16 to 26 have the right to upper secondary education?",opts:["Yes","No","Only up to age 18"],a:0,exp:"Everyone between 16 and 26 has the right to upper secondary education in Norway."}},
+  {cat:"society",no:{q:"Hva er Lånekassen?",opts:["En privat bank","En statlig ordning for studielån og stipend","Et forsikringsselskap for studenter"],a:1,exp:"Lånekassen (Statens lånekasse for utdanning) gir studielån og stipend til elever og studenter."},en:{q:"What is Lånekassen?",opts:["A private bank","A state scheme for student loans and grants","An insurance company for students"],a:1,exp:"Lånekassen (the Norwegian State Educational Loan Fund) provides student loans and grants to pupils and students."}},
+  {cat:"everyday",no:{q:"Omtrent 30 % av par som bor sammen i Norge er ...?",opts:["Samboere","Gift","Skilt"],a:0,exp:"Omtrent 30 % av par som bor sammen er samboere, mens 70 % er gift."},en:{q:"About 30% of couples living together in Norway are ...?",opts:["Cohabiting (samboere)","Married","Divorced"],a:0,exp:"About 30% of cohabiting couples are unmarried partners (samboere), while 70% are married."}},
+  {cat:"everyday",no:{q:"Omtrent 70 % av par som bor sammen i Norge er ...?",opts:["Samboere","Gift","Skilt"],a:1,exp:"Omtrent 70 % av par som bor sammen er gift, mens 30 % er samboere."},en:{q:"About 70% of couples living together in Norway are ...?",opts:["Cohabiting (samboere)","Married","Divorced"],a:1,exp:"About 70% of cohabiting couples are married, while 30% are unmarried partners."}},
+  {cat:"society",no:{q:"Hva er gjennomsnittlig alder for første ekteskap i Norge?",opts:["18–22 år","Mellom 30 og 40 år","50+ år"],a:1,exp:"Gjennomsnittsalderen for første ekteskap i Norge er mellom 30 og 40 år."},en:{q:"What is the average age for first marriage in Norway?",opts:["18–22","Between 30 and 40","50+"],a:1,exp:"The average age for first marriage in Norway is between 30 and 40."}},
+  {cat:"society",no:{q:"Hva er en husholdning?",opts:["Personer som bor sammen og deler økonomi","En familie med barn under 18","Alle som er registrert i samme kommune"],a:0,exp:"En husholdning er personer som bor i samme bolig og deler utgifter til mat og daglige behov."},en:{q:"What is a household?",opts:["People who live together and share finances","A family with children under 18","Everyone registered in the same municipality"],a:0,exp:"A household is people who live in the same dwelling and share expenses for food and daily needs."}},
+  {cat:"rights",no:{q:"Hvilken viktig lov for barns vern kom rundt år 1900?",opts:["Likestillingsloven","Barnevernloven","Stemmerettsloven"],a:1,exp:"En tidlig versjon av barnevernloven kom rundt 1900 og var en av de første lovene for å beskytte barn."},en:{q:"Which important law protecting children was introduced around 1900?",opts:["The Equality Act","The Child Welfare Act","The Suffrage Act"],a:1,exp:"An early version of the Child Welfare Act was introduced around 1900 – one of the first laws to protect children."}},
+  {cat:"everyday",no:{q:"Hvilket nummer ringer du hvis du er bekymret for et barn?",opts:["112","113","116 111"],a:2,exp:"116 111 er Alarmtelefonen for barn og unge – gratis og anonymt døgnet rundt."},en:{q:"Which number do you call if you are worried about a child?",opts:["112","113","116 111"],a:2,exp:"116 111 is the Alarm Telephone for children and young people – free and anonymous around the clock."}},
+  {cat:"health",no:{q:"Hva er vanlige helseproblemer i Norge?",opts:["Malaria og kolera","Diabetes og hjertesykdom","Pest og tuberkulose"],a:1,exp:"Diabetes og hjerte- og karsykdommer er blant de vanligste helseproblemene i Norge."},en:{q:"What are common health problems in Norway?",opts:["Malaria and cholera","Diabetes and heart disease","Plague and tuberculosis"],a:1,exp:"Diabetes and cardiovascular disease are among the most common health problems in Norway."}},
+  {cat:"culture",no:{q:"Hvem var Ivar Aasen?",opts:["En polarforsker","En språkforsker som skapte landsmål (nynorsk)","En komponist"],a:1,exp:"Ivar Aasen (1813–1896) var en språkforsker som samlet norske dialekter og skapte landsmål – det vi i dag kaller nynorsk."},en:{q:"Who was Ivar Aasen?",opts:["A polar explorer","A linguist who created landsmål (Nynorsk)","A composer"],a:1,exp:"Ivar Aasen (1813–1896) was a linguist who collected Norwegian dialects and created landsmål – what we today call Nynorsk."}},
+  {cat:"history",no:{q:"Hva skjedde i Norge midt på 1800-tallet?",opts:["Vikingtiden begynte","Industrialisering og folk flyttet til byene","Norge ble selvstendig"],a:1,exp:"Midt på 1800-tallet startet industrialiseringen i Norge, og mange flyttet fra bygdene til byene."},en:{q:"What happened in Norway in the mid-19th century?",opts:["The Viking Age began","Industrialisation and migration to cities","Norway became independent"],a:1,exp:"In the mid-19th century, industrialisation began in Norway, and many moved from rural areas to cities."}},
+  {cat:"history",no:{q:"Når utvandret over 800 000 nordmenn til USA?",opts:["På 1500-tallet","På slutten av 1800-tallet","På 1900-tallet"],a:1,exp:"Mellom 1825 og 1925 utvandret over 800 000 nordmenn til USA, særlig på slutten av 1800-tallet."},en:{q:"When did over 800,000 Norwegians emigrate to the USA?",opts:["The 16th century","The late 19th century","The 20th century"],a:1,exp:"Between 1825 and 1925, over 800,000 Norwegians emigrated to the USA, especially in the late 19th century."}},
+  {cat:"history",no:{q:"Når ble Norge selvstendig?",opts:["17. mai 1814","7. juni 1905","8. mai 1945"],a:1,exp:"7. juni 1905 ble unionen med Sverige oppløst, og Norge ble en helt selvstendig stat."},en:{q:"When did Norway become independent?",opts:["17 May 1814","7 June 1905","8 May 1945"],a:1,exp:"On 7 June 1905, the union with Sweden was dissolved and Norway became a fully independent state."}},
+  {cat:"health",no:{q:"Hva er blå resept?",opts:["Resept for psykiatriske medisiner","Medisin til lavere pris for kronisk syke","Resept kun for barn under 12 år"],a:1,exp:"Blå resept er en ordning der staten dekker mesteparten av kostnadene for medisin til personer med kronisk sykdom."},en:{q:"What is a 'blå resept' (blue prescription)?",opts:["A prescription for psychiatric medicine","Cheaper medicine for the chronically ill","A prescription only for children under 12"],a:1,exp:"A 'blue prescription' is a scheme where the state covers most of the cost of medicine for people with chronic illness."}},
+  {cat:"government",no:{q:"Hvilke av disse er typiske oppgaver for kommunen?",opts:["Utenrikspolitikk og forsvar","Skole, barnehage, eldreomsorg, renovasjon og lokale veier","Forsvar og høyere utdanning"],a:1,exp:"Kommunen har ansvar for blant annet skole, barnehage, eldreomsorg, renovasjon og lokale veier."},en:{q:"Which of these are typical municipal tasks?",opts:["Foreign policy and defence","Schools, kindergartens, elderly care, waste collection and local roads","Defence and higher education"],a:1,exp:"Municipalities are responsible for things like schools, kindergartens, elderly care, waste collection and local roads."}},
+  {cat:"government",no:{q:"Hvilke av disse er typiske oppgaver for staten?",opts:["Søppelhåndtering og lokale veier","Utenrikspolitikk, sykehus, lover og høyere utdanning","Barnehager og eldreomsorg"],a:1,exp:"Staten har ansvar for blant annet utenrikspolitikk, sykehus, lover og høyere utdanning."},en:{q:"Which of these are typical state tasks?",opts:["Waste collection and local roads","Foreign policy, hospitals, laws and higher education","Kindergartens and elderly care"],a:1,exp:"The state is responsible for things like foreign policy, hospitals, laws and higher education."}},
+  {cat:"geography",no:{q:"Er Svalbard en del av Norge?",opts:["Ja","Nei, det tilhører Russland","Bare delvis – delt med Sverige"],a:0,exp:"Ja, Svalbard er en del av Norge. Norge fikk suverenitet over øygruppen gjennom Svalbardtraktaten i 1920."},en:{q:"Is Svalbard part of Norway?",opts:["Yes","No, it belongs to Russia","Only partly – shared with Sweden"],a:0,exp:"Yes, Svalbard is part of Norway. Norway gained sovereignty over the archipelago through the Svalbard Treaty of 1920."}},
+  {cat:"geography",no:{q:"Hvor stor del av Norge er fjell?",opts:["25 %","50 %","75 %"],a:1,exp:"Omtrent halvparten av Norges areal er fjell."},en:{q:"How much of Norway is mountain?",opts:["25%","50%","75%"],a:1,exp:"About half of Norway's land area is mountain."}},
+  {cat:"rights",no:{q:"Når kom loven om selvbestemt abort i Norge?",opts:["1913","1978","2005"],a:1,exp:"Lov om selvbestemt abort ble vedtatt i 1978."},en:{q:"When was the law on self-determined abortion passed in Norway?",opts:["1913","1978","2005"],a:1,exp:"The law on self-determined abortion was passed in 1978."}},
+  {cat:"rights",no:{q:"Ved skilsmisse, hvor har barnet rett til å bo?",opts:["Bare hos moren","Hos begge foreldrene","Hos besteforeldrene"],a:1,exp:"Etter en skilsmisse har barnet i utgangspunktet rett til å ha kontakt med – og bo hos – begge foreldrene."},en:{q:"In a divorce, where does the child have the right to live?",opts:["Only with the mother","With both parents","With grandparents"],a:1,exp:"After a divorce, the child generally has the right to contact with – and to live with – both parents."}},
+  {cat:"culture",no:{q:"Hva er typisk konfirmasjonsalder i Norge?",opts:["12–13 år","15–16 år","18 år"],a:1,exp:"De fleste konfirmeres i Norge når de er 15 år gamle (i konfirmasjonsåret)."},en:{q:"What is the typical age for confirmation in Norway?",opts:["12–13","15–16","18"],a:1,exp:"Most people in Norway are confirmed at age 15 (in their confirmation year)."}},
+  {cat:"society",no:{q:"Støtter den norske staten religiøse trossamfunn?",opts:["Nei, staten er fullstendig sekulær","Ja, og støtten er basert på antall medlemmer","Bare Den norske kirke får støtte"],a:1,exp:"Den norske staten gir økonomisk støtte til registrerte trossamfunn basert på antall medlemmer."},en:{q:"Does the Norwegian state support religious communities?",opts:["No, the state is fully secular","Yes, support is based on membership numbers","Only the Church of Norway receives support"],a:1,exp:"The Norwegian state provides financial support to registered religious communities based on membership numbers."}},
+];
+
 // --- STATE ---
 let lang = 'no';
 let mode = null; // 'quiz' or 'menu'
@@ -313,12 +381,23 @@ let confirmed = false;
 let score = 0;
 let answers = [];
 let quizSize = 10;
+let bank = 'original'; // 'original' | 'pdf' | 'both'
+
+function getBankQuestions() {
+  if (bank === 'pdf') return PDF_QUESTIONS;
+  if (bank === 'both') return [...ALL_QUESTIONS, ...PDF_QUESTIONS];
+  return ALL_QUESTIONS;
+}
 
 const STRINGS = {
   no: {
     headerSub: "Norsk Statsborgerskap · Øvingsprøve",
-    startTitle: "Velg antall spørsmål",
-    startDesc: `Øvingsprøven inneholder ${ALL_QUESTIONS.length} spørsmål om norsk samfunn, historie, demokrati og kultur. Velg antall spørsmål og start øvingen!`,
+    startTitle: "Start øvingsprøve",
+    startDesc: "Velg spørsmålsbank og antall spørsmål for å starte øvingen.",
+    bankLabel: "Spørsmålsbank",
+    bankOriginal: "Original",
+    bankPdf: "Studieguide",
+    bankBoth: "Begge",
     q10: "10 spørsmål", q10sub: "Rask økt · ca. 5 min",
     q20: "20 spørsmål", q20sub: "Standard økt · ca. 10 min",
     q36: "36 spørsmål", q36sub: "Full prøvelengde · ca. 20 min",
@@ -342,8 +421,12 @@ const STRINGS = {
   },
   en: {
     headerSub: "Norwegian Citizenship · Practice Test",
-    startTitle: "Choose number of questions",
-    startDesc: `The practice test contains ${ALL_QUESTIONS.length} questions about Norwegian society, history, democracy and culture. Choose the number of questions and start practising!`,
+    startTitle: "Start practice test",
+    startDesc: "Choose a question bank and number of questions to start practising.",
+    bankLabel: "Question bank",
+    bankOriginal: "Original",
+    bankPdf: "Study guide",
+    bankBoth: "Both",
     q10: "10 questions", q10sub: "Quick session · ~5 min",
     q20: "20 questions", q20sub: "Standard session · ~10 min",
     q36: "36 questions", q36sub: "Full exam length · ~20 min",
@@ -400,10 +483,19 @@ function render() {
 
 function renderMenu(screen) {
   const s = STRINGS[lang];
+  const pool = getBankQuestions();
+  const bankSize = pool.length;
+  const catCount = new Set(pool.map(q => q.cat)).size;
   screen.innerHTML = `
     <div class="menu-card">
       <h2 style="font-size:18px;color:#e8dfc8;margin-bottom:10px;">${s.startTitle}</h2>
       <p class="menu-desc">${s.startDesc}</p>
+      <p class="bank-label">${s.bankLabel}</p>
+      <div class="bank-row">
+        <button class="bank-btn ${bank==='original'?'active':''}" onclick="setBank('original')">${s.bankOriginal}</button>
+        <button class="bank-btn ${bank==='pdf'?'active':''}" onclick="setBank('pdf')">${s.bankPdf}</button>
+        <button class="bank-btn ${bank==='both'?'active':''}" onclick="setBank('both')">${s.bankBoth}</button>
+      </div>
       <div class="menu-options">
         <button class="menu-btn" onclick="startQuiz(10)"><span class="mb-title">${s.q10}</span><span class="mb-sub">${s.q10sub}</span></button>
         <button class="menu-btn highlight" onclick="startQuiz(20)"><span class="mb-title">${s.q20}</span><span class="mb-sub">${s.q20sub}</span></button>
@@ -411,11 +503,16 @@ function renderMenu(screen) {
         <button class="menu-btn" onclick="startQuiz(50)"><span class="mb-title">${s.q50}</span><span class="mb-sub">${s.q50sub}</span></button>
       </div>
       <div class="stats-row">
-        <div class="stat-item"><span class="stat-num">${ALL_QUESTIONS.length}</span><span class="stat-lbl">${lang==='no'?'Spørsmål':'Questions'}</span></div>
-        <div class="stat-item"><span class="stat-num">10</span><span class="stat-lbl">${lang==='no'?'Kategorier':'Categories'}</span></div>
+        <div class="stat-item"><span class="stat-num">${bankSize}</span><span class="stat-lbl">${lang==='no'?'Spørsmål':'Questions'}</span></div>
+        <div class="stat-item"><span class="stat-num">${catCount}</span><span class="stat-lbl">${lang==='no'?'Kategorier':'Categories'}</span></div>
         <div class="stat-item"><span class="stat-num">75%</span><span class="stat-lbl">${lang==='no'?'Bestått':'Pass mark'}</span></div>
       </div>
     </div>`;
+}
+
+function setBank(b) {
+  bank = b;
+  render();
 }
 
 function renderQuiz(screen) {
@@ -493,8 +590,10 @@ function renderResults(screen) {
 
 // --- ACTIONS ---
 function startQuiz(n) {
-  quizSize = n;
-  quizQ = shuffle(ALL_QUESTIONS).slice(0, n).map(shuffleOptions);
+  const pool = getBankQuestions();
+  const count = Math.min(n, pool.length);
+  quizSize = count;
+  quizQ = shuffle(pool).slice(0, count).map(shuffleOptions);
   current = 0; selected = null; confirmed = false; score = 0; answers = [];
   mode = 'quiz';
   render();
