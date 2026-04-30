@@ -1,4 +1,4 @@
-const CACHE = 'statsborger-v2';
+const CACHE = 'statsborger-v3';
 const ASSETS = [
   '/joy-statsborger-quiz/',
   '/joy-statsborger-quiz/index.html',
@@ -19,8 +19,16 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
+// Network-first: always try fresh content; fall back to cache only when offline.
 self.addEventListener('fetch', e => {
+  if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    fetch(e.request)
+      .then(res => {
+        const copy = res.clone();
+        caches.open(CACHE).then(c => c.put(e.request, copy)).catch(() => {});
+        return res;
+      })
+      .catch(() => caches.match(e.request))
   );
 });
